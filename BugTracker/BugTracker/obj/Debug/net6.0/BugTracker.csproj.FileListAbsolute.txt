@@ -1,0 +1,9 @@
+C:\Users\Muhammad Musab\Desktop\BugTracker-FinalProject\BugTracker\BugTracker\obj\Debug\net6.0\BugTracker.csproj.AssemblyReference.cache
+C:\Users\Muhammad Musab\Desktop\BugTracker-FinalProject\BugTracker\BugTracker\obj\Debug\net6.0\BugTracker.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Muhammad Musab\Desktop\BugTracker-FinalProject\BugTracker\BugTracker\obj\Debug\net6.0\BugTracker.AssemblyInfoInputs.cache
+C:\Users\Muhammad Musab\Desktop\BugTracker-FinalProject\BugTracker\BugTracker\obj\Debug\net6.0\BugTracker.AssemblyInfo.cs
+C:\Users\Muhammad Musab\Desktop\BugTracker-FinalProject\BugTracker\BugTracker\obj\Debug\net6.0\BugTracker.csproj.CoreCompileInputs.cache
+C:\Users\Muhammad Musab\Desktop\BugTracker-FinalProject\BugTracker\BugTracker\obj\Debug\net6.0\BugTracker.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Muhammad Musab\Desktop\BugTracker-FinalProject\BugTracker\BugTracker\obj\Debug\net6.0\BugTracker.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Muhammad Musab\Desktop\BugTracker-FinalProject\BugTracker\BugTracker\obj\Debug\net6.0\BugTracker.RazorAssemblyInfo.cache
+C:\Users\Muhammad Musab\Desktop\BugTracker-FinalProject\BugTracker\BugTracker\obj\Debug\net6.0\BugTracker.RazorAssemblyInfo.cs
