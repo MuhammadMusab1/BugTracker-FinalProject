@@ -32,6 +32,7 @@ namespace BugTracker.Data
 
             //Only Developer can be assigned to Tickets (No one else can be assigned unless they are also a Developer).
 
+            //TickHistory: breakTable between Ticket and ApplicationUser
             //One to Many between Ticket and TicketHistory
             builder.Entity<TicketHistory>()
                 .HasOne(ticketHistory => ticketHistory.Ticket)
@@ -41,6 +42,18 @@ namespace BugTracker.Data
             builder.Entity<TicketHistory>()
                 .HasOne(ticketHistory => ticketHistory.User)
                 .WithMany(user => user.TicketHistories)
+                .HasForeignKey(ticketHistory => ticketHistory.UserId);
+
+            //TickComment: breakTable between Ticket and ApplicationUser
+            //One to Many between Ticket and TicketComment
+            builder.Entity<TicketComment>()
+                .HasOne(ticketHistory => ticketHistory.Ticket)
+                .WithMany(ticket => ticket.TicketComments)
+                .HasForeignKey(ticketHistory => ticketHistory.TicketId);
+            //One to Many between ApplicationUser and TicketComment
+            builder.Entity<TicketComment>()
+                .HasOne(ticketHistory => ticketHistory.User)
+                .WithMany(user => user.TicketComments)
                 .HasForeignKey(ticketHistory => ticketHistory.UserId);
 
         }

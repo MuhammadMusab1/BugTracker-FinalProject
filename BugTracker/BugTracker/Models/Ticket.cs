@@ -13,9 +13,11 @@
         public string SubmitterId { get; set; }
         public ApplicationUser Submitter { get; set; }
         public ICollection<TicketHistory> TicketHistories { get; set; }
+        public ICollection<TicketComment> TicketComments { get; set; }
         public Ticket()
         {
             TicketHistories = new HashSet<TicketHistory>();
+            TicketComments = new HashSet<TicketComment>();
         }
     }
 
