@@ -69,6 +69,18 @@ namespace BugTracker.Data
                 .WithMany(user => user.TicketNotifications)
                 .HasForeignKey(ticketHistory => ticketHistory.UserId);
 
+            //One to Many between ProjectManager and Project
+            builder.Entity<Project>()
+                .HasOne(project => project.ProjectManager)
+                .WithMany(projectManager => projectManager.ProjectOwned)
+                .HasForeignKey(project => project.ProjectManagerId);
+
+            //One To Many between Project and Developer
+            builder.Entity<ApplicationUser>()
+                .HasOne(developer => developer.ProjectAssigned)
+                .WithMany(projecAssignedTo => projecAssignedTo.Developers)
+                .HasForeignKey(developer => developer.ProjectAssignedId);
+
         }
     }
 }

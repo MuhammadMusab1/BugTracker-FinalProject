@@ -6,16 +6,17 @@ namespace BugTracker.Models
     {
         public ICollection<Ticket> SubmittedTickets { get; set; }
         public ICollection<Ticket> AssignedTickets { get; set; }
-        public ICollection<Project> Projects { get; set; }
         public ICollection<TicketHistory> TicketHistories { get; set; }
         public ICollection<TicketComment> TicketComments { get; set; }
         public ICollection<TicketNotification> TicketNotifications { get; set; }
+        public ICollection<Project> ProjectOwned { get; set; }
+        public Project ProjectAssigned{ get; set; }
+        public int ProjectAssignedId { get; set; }
 
         public ApplicationUser()
         {
             SubmittedTickets = new HashSet<Ticket>();
             AssignedTickets = new HashSet<Ticket>();
-            Projects = new HashSet<Project>();
             TicketHistories = new HashSet<TicketHistory>();
             TicketComments = new HashSet<TicketComment>();
             TicketNotifications = new HashSet<TicketNotification>();
