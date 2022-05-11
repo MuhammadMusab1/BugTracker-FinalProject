@@ -1,6 +1,6 @@
 ﻿namespace BugTracker.Models
 {
-    public class TicketComment
+    public class TicketComment //breakTable between Ticket and ApplicationUser
     {
         public int Id { get; set; }
         public string Comment { get; set; }

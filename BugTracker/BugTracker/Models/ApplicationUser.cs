@@ -9,6 +9,7 @@ namespace BugTracker.Models
         public ICollection<Project> Projects { get; set; }
         public ICollection<TicketHistory> TicketHistories { get; set; }
         public ICollection<TicketComment> TicketComments { get; set; }
+        public ICollection<TicketNotification> TicketNotifications { get; set; }
 
         public ApplicationUser()
         {
@@ -17,6 +18,7 @@ namespace BugTracker.Models
             Projects = new HashSet<Project>();
             TicketHistories = new HashSet<TicketHistory>();
             TicketComments = new HashSet<TicketComment>();
+            TicketNotifications = new HashSet<TicketNotification>();
         }
     }
 }

@@ -17,6 +17,8 @@ namespace BugTracker.Data
             builder.Entity<ApplicationUser>().HasKey(user => user.Id);
             builder.Entity<Ticket>().HasKey(ticket => ticket.Id);
             builder.Entity<TicketHistory>().HasKey(ticketHistory => ticketHistory.Id);
+            builder.Entity<TicketComment>().HasKey(ticketComment => ticketComment.Id);
+            builder.Entity<TicketNotification>().HasKey(ticketNotification => ticketNotification.Id);
 
 
             //Multiple One to Many between ApplicationUser and Ticket
@@ -54,6 +56,17 @@ namespace BugTracker.Data
             builder.Entity<TicketComment>()
                 .HasOne(ticketHistory => ticketHistory.User)
                 .WithMany(user => user.TicketComments)
+                .HasForeignKey(ticketHistory => ticketHistory.UserId);
+
+            //TicketNotification: breakTable between Ticket and ApplicationUser
+             builder.Entity<TicketNotification>()
+                .HasOne(ticketNotification => ticketNotification.Ticket)
+                .WithMany(ticket => ticket.TicketNotifications)
+                .HasForeignKey(ticketHistory => ticketHistory.TicketId);
+            //One to Many between ApplicationUser and TicketComment
+            builder.Entity<TicketNotification>()
+                .HasOne(ticketNotification => ticketNotification.User)
+                .WithMany(user => user.TicketNotifications)
                 .HasForeignKey(ticketHistory => ticketHistory.UserId);
 
         }
