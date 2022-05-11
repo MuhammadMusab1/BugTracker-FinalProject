@@ -19,6 +19,8 @@ namespace BugTracker.Data
             builder.Entity<TicketHistory>().HasKey(ticketHistory => ticketHistory.Id);
             builder.Entity<TicketComment>().HasKey(ticketComment => ticketComment.Id);
             builder.Entity<TicketNotification>().HasKey(ticketNotification => ticketNotification.Id);
+            builder.Entity<TicketAttachment>().HasKey(ticketAttachment => ticketAttachment.Id);
+            builder.Entity<Project>().HasKey(project => project.Id);
 
 
             //Multiple One to Many between ApplicationUser and Ticket
@@ -64,7 +66,8 @@ namespace BugTracker.Data
                 .OnDelete(DeleteBehavior.NoAction);
 
             //TicketNotification: breakTable between Ticket and ApplicationUser
-             builder.Entity<TicketNotification>()
+            //One to Many between ApplicationUser and TicketComment
+            builder.Entity<TicketNotification>()
                 .HasOne(ticketNotification => ticketNotification.Ticket)
                 .WithMany(ticket => ticket.TicketNotifications)
                 .HasForeignKey(ticketHistory => ticketHistory.TicketId)
@@ -76,10 +79,24 @@ namespace BugTracker.Data
                 .HasForeignKey(ticketHistory => ticketHistory.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            //TicketAttachment: breakTable between Ticket and ApplicationUser
+            //One to Many between Ticket and TicketAttachment
+            builder.Entity<TicketAttachment>()
+                .HasOne(ticketAttachment => ticketAttachment.Ticket)
+                .WithMany(ticket => ticket.TicketAttachments)
+                .HasForeignKey(ticketAttachment => ticketAttachment.TicketId)
+                .OnDelete(DeleteBehavior.NoAction);
+            //One to Many between ApplicationUser and TicketAttachment
+            builder.Entity<TicketAttachment>()
+                .HasOne(ticketAttachment => ticketAttachment.Submitter)
+                .WithMany(submitter => submitter.TicketAttachments)
+                .HasForeignKey(ticketAttachment => ticketAttachment.SubmitterId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             //One to Many between ProjectManager and Project
             builder.Entity<Project>()
                 .HasOne(project => project.ProjectManager)
-                .WithMany(projectManager => projectManager.ProjectOwned)
+                .WithMany(projectManager => projectManager.ProjectsOwned)
                 .HasForeignKey(project => project.ProjectManagerId)
                 .OnDelete(DeleteBehavior.NoAction);
 
@@ -88,7 +105,7 @@ namespace BugTracker.Data
                 .HasOne(developer => developer.ProjectAssigned)
                 .WithMany(projecAssignedTo => projecAssignedTo.Developers)
                 .HasForeignKey(developer => developer.ProjectAssignedId);
-
         }
+        public DbSet<TicketAttachment> TicketAttachment { get; set; }
     }
 }
