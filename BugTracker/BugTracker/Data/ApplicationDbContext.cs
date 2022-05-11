@@ -25,12 +25,13 @@ namespace BugTracker.Data
             builder.Entity<Ticket>()
                 .HasOne(assignedTicket => assignedTicket.Developer)
                 .WithMany(developer => developer.AssignedTickets)
-                .HasForeignKey(ticket => ticket.DeveloperId); //foreignKey stays on the Many part of the relationship
+                .HasForeignKey(ticket => ticket.DeveloperId);//foreignKey stays on the Many part of the relationship
 
             builder.Entity<Ticket>()
                 .HasOne(submittedTicket => submittedTicket.Submitter)
                 .WithMany(submitter => submitter.SubmittedTickets)
-                .HasForeignKey(ticket => ticket.SubmitterId); //foreignKey stays on the Many part of the relationship
+                .HasForeignKey(ticket => ticket.SubmitterId)
+                .OnDelete(DeleteBehavior.NoAction); //foreignKey stays on the Many part of the relationship
 
             //Only Developer can be assigned to Tickets (No one else can be assigned unless they are also a Developer).
 
@@ -39,41 +40,48 @@ namespace BugTracker.Data
             builder.Entity<TicketHistory>()
                 .HasOne(ticketHistory => ticketHistory.Ticket)
                 .WithMany(ticket => ticket.TicketHistories)
-                .HasForeignKey(ticketHistory => ticketHistory.TicketId); 
+                .HasForeignKey(ticketHistory => ticketHistory.TicketId)
+                .OnDelete(DeleteBehavior.NoAction); 
             //One to Many between ApplicationUser and TicketHistory
             builder.Entity<TicketHistory>()
                 .HasOne(ticketHistory => ticketHistory.User)
                 .WithMany(user => user.TicketHistories)
-                .HasForeignKey(ticketHistory => ticketHistory.UserId);
+                .HasForeignKey(ticketHistory => ticketHistory.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             //TickComment: breakTable between Ticket and ApplicationUser
             //One to Many between Ticket and TicketComment
             builder.Entity<TicketComment>()
                 .HasOne(ticketHistory => ticketHistory.Ticket)
                 .WithMany(ticket => ticket.TicketComments)
-                .HasForeignKey(ticketHistory => ticketHistory.TicketId);
+                .HasForeignKey(ticketHistory => ticketHistory.TicketId)
+                .OnDelete(DeleteBehavior.NoAction);
             //One to Many between ApplicationUser and TicketComment
             builder.Entity<TicketComment>()
                 .HasOne(ticketHistory => ticketHistory.User)
                 .WithMany(user => user.TicketComments)
-                .HasForeignKey(ticketHistory => ticketHistory.UserId);
+                .HasForeignKey(ticketHistory => ticketHistory.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             //TicketNotification: breakTable between Ticket and ApplicationUser
              builder.Entity<TicketNotification>()
                 .HasOne(ticketNotification => ticketNotification.Ticket)
                 .WithMany(ticket => ticket.TicketNotifications)
-                .HasForeignKey(ticketHistory => ticketHistory.TicketId);
+                .HasForeignKey(ticketHistory => ticketHistory.TicketId)
+                .OnDelete(DeleteBehavior.NoAction);
             //One to Many between ApplicationUser and TicketComment
             builder.Entity<TicketNotification>()
                 .HasOne(ticketNotification => ticketNotification.User)
                 .WithMany(user => user.TicketNotifications)
-                .HasForeignKey(ticketHistory => ticketHistory.UserId);
+                .HasForeignKey(ticketHistory => ticketHistory.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             //One to Many between ProjectManager and Project
             builder.Entity<Project>()
                 .HasOne(project => project.ProjectManager)
                 .WithMany(projectManager => projectManager.ProjectOwned)
-                .HasForeignKey(project => project.ProjectManagerId);
+                .HasForeignKey(project => project.ProjectManagerId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             //One To Many between Project and Developer
             builder.Entity<ApplicationUser>()
