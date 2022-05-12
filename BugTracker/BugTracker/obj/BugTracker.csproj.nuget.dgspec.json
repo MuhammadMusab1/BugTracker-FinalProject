@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Muhammad Musab\\Desktop\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj": {}
+    "C:\\Users\\nisep\\source\\repos\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Muhammad Musab\\Desktop\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj": {
+    "C:\\Users\\nisep\\source\\repos\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Muhammad Musab\\Desktop\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj",
+        "projectUniqueName": "C:\\Users\\nisep\\source\\repos\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj",
         "projectName": "BugTracker",
-        "projectPath": "C:\\Users\\Muhammad Musab\\Desktop\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj",
-        "packagesPath": "C:\\Users\\Muhammad Musab\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Muhammad Musab\\Desktop\\BugTracker-FinalProject\\BugTracker\\BugTracker\\obj\\",
+        "projectPath": "C:\\Users\\nisep\\source\\repos\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj",
+        "packagesPath": "C:\\Users\\nisep\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\nisep\\source\\repos\\BugTracker-FinalProject\\BugTracker\\BugTracker\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Muhammad Musab\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\nisep\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -52,13 +52,21 @@
               "target": "Package",
               "version": "[6.0.4, )"
             },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[6.0.5, )"
+            },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[6.0.4, )"
+              "version": "[6.0.5, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[6.0.4, )"
+              "version": "[6.0.5, )"
             }
           },
           "imports": [
