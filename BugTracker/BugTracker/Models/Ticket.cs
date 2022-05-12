@@ -12,6 +12,17 @@
         public ApplicationUser Developer { get; set; }
         public string SubmitterId { get; set; }
         public ApplicationUser Submitter { get; set; }
+        public ICollection<TicketHistory> TicketHistories { get; set; }
+        public ICollection<TicketComment> TicketComments { get; set; }
+        public ICollection<TicketNotification> TicketNotifications { get; set; }
+        public ICollection<TicketAttachment> TicketAttachments { get; set; }
+        public Ticket()
+        {
+            TicketHistories = new HashSet<TicketHistory>();
+            TicketComments = new HashSet<TicketComment>();
+            TicketNotifications = new HashSet<TicketNotification>();
+            TicketAttachments = new HashSet<TicketAttachment>();
+        }
     }
 
     public enum TicketPriority
