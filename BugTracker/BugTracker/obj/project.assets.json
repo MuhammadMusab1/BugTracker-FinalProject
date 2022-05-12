@@ -2265,19 +2265,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\nisep\\.nuget\\packages\\": {}
+    "C:\\Users\\Muhammad Musab\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\nisep\\source\\repos\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj",
+      "projectUniqueName": "C:\\Users\\Muhammad Musab\\Desktop\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj",
       "projectName": "BugTracker",
-      "projectPath": "C:\\Users\\nisep\\source\\repos\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj",
-      "packagesPath": "C:\\Users\\nisep\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\nisep\\source\\repos\\BugTracker-FinalProject\\BugTracker\\BugTracker\\obj\\",
+      "projectPath": "C:\\Users\\Muhammad Musab\\Desktop\\BugTracker-FinalProject\\BugTracker\\BugTracker\\BugTracker.csproj",
+      "packagesPath": "C:\\Users\\Muhammad Musab\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Muhammad Musab\\Desktop\\BugTracker-FinalProject\\BugTracker\\BugTracker\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\nisep\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Muhammad Musab\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
