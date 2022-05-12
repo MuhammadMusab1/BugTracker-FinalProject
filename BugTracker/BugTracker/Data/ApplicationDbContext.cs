@@ -27,7 +27,8 @@ namespace BugTracker.Data
             builder.Entity<Ticket>()
                 .HasOne(assignedTicket => assignedTicket.Developer)
                 .WithMany(developer => developer.AssignedTickets)
-                .HasForeignKey(ticket => ticket.DeveloperId);//foreignKey stays on the Many part of the relationship
+                .HasForeignKey(ticket => ticket.DeveloperId)
+                .OnDelete(DeleteBehavior.NoAction);//foreignKey stays on the Many part of the relationship
 
             builder.Entity<Ticket>()
                 .HasOne(submittedTicket => submittedTicket.Submitter)
@@ -104,7 +105,8 @@ namespace BugTracker.Data
             builder.Entity<ApplicationUser>()
                 .HasOne(developer => developer.ProjectAssigned)
                 .WithMany(projecAssignedTo => projecAssignedTo.Developers)
-                .HasForeignKey(developer => developer.ProjectAssignedId);
+                .HasForeignKey(developer => developer.ProjectAssignedId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
         public DbSet<Ticket> Ticket { get; set; }
         public DbSet<TicketComment> TicketComment { get; set; }
