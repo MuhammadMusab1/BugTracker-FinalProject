@@ -106,6 +106,11 @@ namespace BugTracker.Data
                 .WithMany(projecAssignedTo => projecAssignedTo.Developers)
                 .HasForeignKey(developer => developer.ProjectAssignedId);
         }
+        public DbSet<Ticket> Ticket { get; set; }
+        public DbSet<TicketComment> TicketComment { get; set; }
+        public DbSet<TicketNotification> TicketNotification { get; set; }
+        public DbSet<TicketHistory> TicketHistory { get; set; }
         public DbSet<TicketAttachment> TicketAttachment { get; set; }
+        public DbSet<Project> Project { get; set; }
     }
 }
