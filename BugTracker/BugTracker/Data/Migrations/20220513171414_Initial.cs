@@ -13,8 +13,7 @@ namespace BugTracker.Data.Migrations
                 name: "ProjectAssignedId",
                 table: "AspNetUsers",
                 type: "int",
-                nullable: false,
-                defaultValue: 0);
+                nullable: true);
 
             migrationBuilder.CreateTable(
                 name: "Project",

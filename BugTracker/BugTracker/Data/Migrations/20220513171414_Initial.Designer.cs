@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BugTracker.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220512141159_Initial")]
+    [Migration("20220513171414_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,7 +66,7 @@ namespace BugTracker.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("ProjectAssignedId")
+                    b.Property<int?>("ProjectAssignedId")
                         .HasColumnType("int");
 
                     b.Property<string>("SecurityStamp")
@@ -438,8 +438,7 @@ namespace BugTracker.Data.Migrations
                     b.HasOne("BugTracker.Models.Project", "ProjectAssigned")
                         .WithMany("Developers")
                         .HasForeignKey("ProjectAssignedId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("ProjectAssigned");
                 });

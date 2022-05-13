@@ -11,8 +11,8 @@ namespace BugTracker.Models
         public ICollection<TicketNotification> TicketNotifications { get; set; }
         public ICollection<TicketAttachment> TicketAttachments { get; set; }
         public ICollection<Project> ProjectsOwned { get; set; }
-        public Project ProjectAssigned{ get; set; }
-        public int ProjectAssignedId { get; set; }
+        public Project? ProjectAssigned{ get; set; } 
+        public int? ProjectAssignedId { get; set; }
 
         public ApplicationUser()
         {
