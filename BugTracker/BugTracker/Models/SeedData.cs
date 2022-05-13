@@ -48,7 +48,7 @@ namespace BugTracker.Models
                 var firstUserHashedPassword = passwordHasher.HashPassword(firstUser, "Password!1");
                 firstUser.PasswordHash = firstUserHashedPassword;
                 await userManager.CreateAsync(firstUser);
-                //await userManager.AddToRoleAsync(firstUser, "Developer");
+                await userManager.AddToRoleAsync(firstUser, "Project Manager");
 
                 //user2
                 ApplicationUser secondUser = new ApplicationUser()
@@ -64,7 +64,7 @@ namespace BugTracker.Models
 
                 await userManager.CreateAsync(secondUser);
                 await userManager.AddToRoleAsync(secondUser, "Admin");
-                //await userManager.AddToRoleAsync(secondUser, "Developer");
+                await userManager.AddToRoleAsync(secondUser, "Submitter");
 
                 //user3: testUser is just a user(potential to become a Developer, ProjectManager, Submitter)
                 ApplicationUser testUser = new ApplicationUser()
@@ -78,6 +78,38 @@ namespace BugTracker.Models
                 var testUserHashedPassword = passwordHasher.HashPassword(testUser, "Password!1");
                 testUser.PasswordHash = testUserHashedPassword;
                 await userManager.CreateAsync(testUser);
+                if(!context.Project.Any())
+                {
+                    Project project = new Project()
+                    {
+                        Id = 1,
+                        Name = "SeedData Project",
+                        Description = "Project from the SeeData class",
+                        ProjectManager = firstUser,
+                        ProjectManagerId = firstUser.Id,
+                        Developers = new HashSet<ApplicationUser>(),
+                        Tickets = new HashSet<Ticket>()
+                    };
+                    if (!context.Ticket.Any())
+                    {
+                        Ticket ticket = new Ticket()
+                        {
+                            Id = 1,
+                            Title = "First Ticket",
+                            Description = "This is a ticket from the SeedData class",
+                            CreatedDate = DateTime.Now,
+                            UpdatedDate = DateTime.Now,
+                            ProjectId = project.Id,
+                            Project = project,
+                            Submitter = secondUser,
+                            SubmitterId = secondUser.Id,
+                        };
+                        project.Tickets.Add(ticket);
+                        context.Project.Add(project);
+                        context.Ticket.Add(ticket);
+                    }
+                    context.SaveChanges();
+                }
             }
         }
     }
