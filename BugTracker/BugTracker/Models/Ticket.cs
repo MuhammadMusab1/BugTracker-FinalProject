@@ -8,8 +8,9 @@
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public int ProjectId { get; set; }
-        public string DeveloperId { get; set; }
-        public ApplicationUser Developer { get; set; }
+        public Project Project { get; set; }
+        public string? DeveloperId { get; set; }
+        public ApplicationUser? Developer { get; set; }
         public string SubmitterId { get; set; }
         public ApplicationUser Submitter { get; set; }
         public ICollection<TicketHistory> TicketHistories { get; set; }
