@@ -17,6 +17,11 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.Initialize(services); // send all services to our SeedData Class
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
