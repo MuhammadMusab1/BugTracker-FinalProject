@@ -107,6 +107,13 @@ namespace BugTracker.Data
                 .WithMany(projecAssignedTo => projecAssignedTo.Developers)
                 .HasForeignKey(developer => developer.ProjectAssignedId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            //One to Many between Project and Ticket
+            builder.Entity<Ticket>()
+            .HasOne(ticket => ticket.Project)
+            .WithMany(project => project.Tickets)
+            .HasForeignKey(ticket => ticket.ProjectId)
+            .OnDelete(DeleteBehavior.NoAction);
         }
         public DbSet<Ticket> Ticket { get; set; }
         public DbSet<TicketComment> TicketComment { get; set; }
