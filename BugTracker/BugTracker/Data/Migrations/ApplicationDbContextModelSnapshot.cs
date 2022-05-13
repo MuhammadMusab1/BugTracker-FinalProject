@@ -135,7 +135,6 @@ namespace BugTracker.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DeveloperId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("ProjectId")
@@ -155,6 +154,8 @@ namespace BugTracker.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DeveloperId");
+
+                    b.HasIndex("ProjectId");
 
                     b.HasIndex("SubmitterId");
 
@@ -457,6 +458,11 @@ namespace BugTracker.Data.Migrations
                     b.HasOne("BugTracker.Models.ApplicationUser", "Developer")
                         .WithMany("AssignedTickets")
                         .HasForeignKey("DeveloperId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("BugTracker.Models.Project", "Project")
+                        .WithMany("Tickets")
+                        .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -467,6 +473,8 @@ namespace BugTracker.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Developer");
+
+                    b.Navigation("Project");
 
                     b.Navigation("Submitter");
                 });
@@ -618,6 +626,8 @@ namespace BugTracker.Data.Migrations
             modelBuilder.Entity("BugTracker.Models.Project", b =>
                 {
                     b.Navigation("Developers");
+
+                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("BugTracker.Models.Ticket", b =>

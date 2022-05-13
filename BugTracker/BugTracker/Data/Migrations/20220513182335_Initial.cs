@@ -46,7 +46,7 @@ namespace BugTracker.Data.Migrations
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ProjectId = table.Column<int>(type: "int", nullable: false),
-                    DeveloperId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DeveloperId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     SubmitterId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -61,6 +61,11 @@ namespace BugTracker.Data.Migrations
                         name: "FK_Ticket_AspNetUsers_SubmitterId",
                         column: x => x.SubmitterId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Ticket_Project_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Project",
                         principalColumn: "Id");
                 });
 
@@ -186,6 +191,11 @@ namespace BugTracker.Data.Migrations
                 column: "DeveloperId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Ticket_ProjectId",
+                table: "Ticket",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Ticket_SubmitterId",
                 table: "Ticket",
                 column: "SubmitterId");
@@ -245,9 +255,6 @@ namespace BugTracker.Data.Migrations
                 table: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Project");
-
-            migrationBuilder.DropTable(
                 name: "TicketAttachment");
 
             migrationBuilder.DropTable(
@@ -261,6 +268,9 @@ namespace BugTracker.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Ticket");
+
+            migrationBuilder.DropTable(
+                name: "Project");
 
             migrationBuilder.DropIndex(
                 name: "IX_AspNetUsers_ProjectAssignedId",
