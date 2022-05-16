@@ -75,5 +75,57 @@ namespace BugTracker.Controllers
                 return BadRequest("role or userId is null at AssignRoleToUser post method");
             }
         }
+        [HttpGet]
+        public IActionResult UnassignUserFromRole()
+        {
+            ViewBag.usersList = new SelectList(_db.Users.ToList(), "Id", "UserName");
+            ViewBag.rolesList = new SelectList(_db.Roles.ToList(), "Name", "Name");
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> UnassignUserFromRole(string userId, string role)
+        {
+            if (userId != null && role != null)
+            {
+                try
+                {
+                    string message = "";
+                    ApplicationUser user = await _userManager.FindByIdAsync(userId);
+                    if (await _roleManager.RoleExistsAsync(role)) // check if role is in the database
+                    {
+                        if (await _userManager.IsInRoleAsync(user, role)) //check if the user is in that role (To remove user)
+                        {
+                            await _userManager.RemoveFromRoleAsync(user, role);
+                            message = $"{user.UserName} has been removed from the {role} role";
+                            ViewBag.usersList = new SelectList(_db.Users.ToList(), "Id", "UserName");
+                            ViewBag.rolesList = new SelectList(_db.Roles.ToList(), "Name", "Name");
+                            return View("UnassignUserFromRole", message);
+                        }
+                        else
+                        {
+                            message = $"{user.UserName} is not in the {role} role";
+                            ViewBag.usersList = new SelectList(_db.Users.ToList(), "Id", "UserName");
+                            ViewBag.rolesList = new SelectList(_db.Roles.ToList(), "Name", "Name");
+                            return View("UnassignUserFromRole", message);
+                        }
+                    }
+                    else
+                    {
+                        message = $"role doesn't exist";
+                        ViewBag.usersList = new SelectList(_db.Users.ToList(), "Id", "UserName");
+                        ViewBag.rolesList = new SelectList(_db.Roles.ToList(), "Name", "Name");
+                        return View("UnassignUserFromRole", message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return NotFound("user not Found at AssignRoleToUser post method");
+                }
+            }
+            else
+            {
+                return BadRequest("role or userId is null at AssignRoleToUser post method");
+            }
+        }
     }
 }
