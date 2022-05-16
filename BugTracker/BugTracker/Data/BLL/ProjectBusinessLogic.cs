@@ -30,9 +30,10 @@ namespace BugTracker.Data.BLL
             return ProjectRepo.GetList(p => p.ProjectManagerId == pmId).ToList();
         }
 
-        public List<Project> GetAllProjectsFromDeveloper(string developerId)
+        public async Task<List<Project>> GetAllProjectsFromDeveloper(string developerId)
         {
-            return ProjectRepo.GetList(p => p.Developers.First(d => d.Id == developerId) == developerId).ToList();
+            ApplicationUser dev = await UserManager.FindByIdAsync(developerId);
+            return ProjectRepo.GetList(p => p.Developers.First(d => d.Id == developerId) == dev).ToList();
         }
 
         [Authorize(Roles = "Admin, Project Manager")]
