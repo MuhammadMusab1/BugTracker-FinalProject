@@ -44,6 +44,7 @@ namespace BugTracker.Models
                     UserName = "musab03@gmail.com",
                     NormalizedUserName = "MUSAB03@GMAIL.COM",
                     EmailConfirmed = true,
+                    ProjectsOwned = new HashSet<Project>() //need to be intialized to use the list
                 };
                 var firstUserHashedPassword = passwordHasher.HashPassword(firstUser, "Password!1");
                 firstUser.PasswordHash = firstUserHashedPassword;
@@ -58,6 +59,7 @@ namespace BugTracker.Models
                     UserName = "admin03@gmail.com",
                     NormalizedUserName = "ADMIN03@GMAIL.COM",
                     EmailConfirmed = true,
+                    SubmittedTickets = new HashSet<Ticket>()
                 };
                 var secondUserHashedPassword = passwordHasher.HashPassword(secondUser, "Password!1");
                 secondUser.PasswordHash = secondUserHashedPassword;
@@ -78,39 +80,50 @@ namespace BugTracker.Models
                 var testUserHashedPassword = passwordHasher.HashPassword(testUser, "Password!1");
                 testUser.PasswordHash = testUserHashedPassword;
                 await userManager.CreateAsync(testUser);
-                if(!context.Project.Any())
+                #region One Project and a Ticket
+                if (!context.Project.Any())
                 {
                     Project project = new Project()
                     {
-                        Id = 1,
                         Name = "SeedData Project",
                         Description = "Project from the SeeData class",
                         ProjectManager = firstUser,
                         ProjectManagerId = firstUser.Id,
-                        Developers = new HashSet<ApplicationUser>(),
-                        Tickets = new HashSet<Ticket>()
+                        Tickets = new HashSet<Ticket>(),
                     };
+                    firstUser.ProjectsOwned.Add(project); //firstUser is the Project Manager
+                    context.Project.Add(project);
                     if (!context.Ticket.Any())
                     {
                         Ticket ticket = new Ticket()
                         {
-                            Id = 1,
-                            Title = "First Ticket",
+                            Title = "SeedData Ticket",
                             Description = "This is a ticket from the SeedData class",
                             CreatedDate = DateTime.Now,
-                            UpdatedDate = DateTime.Now,
+                            UpdatedDate = DateTime.Parse("June 12 2022 12:00"),
                             ProjectId = project.Id,
                             Project = project,
                             Submitter = secondUser,
                             SubmitterId = secondUser.Id,
                         };
+                        secondUser.SubmittedTickets.Add(ticket); //secondUser is the submitter
                         project.Tickets.Add(ticket);
-                        context.Project.Add(project);
                         context.Ticket.Add(ticket);
                     }
-                    context.SaveChanges();
+                    await userManager.UpdateAsync(firstUser);
+                    await userManager.UpdateAsync(secondUser);
                 }
+                #endregion
             }
         }
     }
 }
+
+/*
+: Violation of PRIMARY KEY constraint 'PK_AspNetUsers'. 
+Cannot insert duplicate key in object 'dbo.AspNetUsers'. 
+The duplicate key value is (159e1790-e0ca-40ec-909a-f6ae5e566a5e).
+
+Happend because I was using context.SaveChanges()
+So I instead used the userManager to save changes to the context.
+ */
