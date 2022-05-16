@@ -1,0 +1,30 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model string
+<h2>Assign Role To User</h2>
+
+<form method="post" asp-action="AssignRoleToUser">
+    <select asp-items="@ViewBag.usersList" name="userId">
+
+    </select>
+    <select asp-items="@ViewBag.rolesList" name="role">
+
+    </select>
+   <input type="submit" value="Assign" class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;"/>
+</form>
+
+<h3>Message</h3>
+@if(Model != null)
+{
+    <div>@Model</div>
+}
+else
+{
+    <div>nothing to show!!</div>
+}
+
+ <a class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;" asp-action="Index">Index</a>
+
