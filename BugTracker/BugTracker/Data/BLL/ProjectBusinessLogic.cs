@@ -13,7 +13,7 @@ namespace BugTracker.Data.BLL
         private UserManager<ApplicationUser> UserManager;
         private RoleManager<IdentityRole> RoleManager;
 
-        public ProjectBusinessLogic(ApplicationDbContext db, IRepository<Project> projRepo, IRepository<Ticekt> ticketRepo, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public ProjectBusinessLogic(ApplicationDbContext db, IRepository<Project> projRepo, IRepository<Ticket> ticketRepo, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             Db = db;
             ProjectRepo = projRepo;
