@@ -114,6 +114,12 @@ namespace BugTracker.Data
             .WithMany(project => project.Tickets)
             .HasForeignKey(ticket => ticket.ProjectId)
             .OnDelete(DeleteBehavior.NoAction);
+
+            //One to One between TicketHistory and TicketLogItem
+            builder.Entity<TicketHistory>()
+                .HasOne(ticketHistory => ticketHistory.TicketLogItem)
+                .WithOne(ticketLogItem => ticketLogItem.TicketHistory)
+                .HasForeignKey<TicketLogItem>(ticketLogItem => ticketLogItem.TicketHistoryId);
         }
         public DbSet<Ticket> Ticket { get; set; }
         public DbSet<TicketComment> TicketComment { get; set; }
@@ -121,5 +127,6 @@ namespace BugTracker.Data
         public DbSet<TicketHistory> TicketHistory { get; set; }
         public DbSet<TicketAttachment> TicketAttachment { get; set; }
         public DbSet<Project> Project { get; set; }
+        public DbSet<TicketLogItem> TicketLogItem { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using BugTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BugTracker.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220516204658_AddPropertyPriorityTypeAndStatusToTicket")]
+    partial class AddPropertyPriorityTypeAndStatusToTicket
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -252,10 +254,19 @@ namespace BugTracker.Data.Migrations
                     b.Property<DateTime>("ChangedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TicketId")
-                        .HasColumnType("int");
+                    b.Property<string>("NewValue")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TicketLogItemId")
+                    b.Property<string>("OldValue")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Property")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TicketId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
@@ -269,45 +280,6 @@ namespace BugTracker.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("TicketHistory");
-                });
-
-            modelBuilder.Entity("BugTracker.Models.TicketLogItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("OldDescription")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OldPriority")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OldStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OldTitle")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OldType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TicketHistoryId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TicketHistoryId")
-                        .IsUnique();
-
-                    b.ToTable("TicketLogItem");
                 });
 
             modelBuilder.Entity("BugTracker.Models.TicketNotification", b =>
@@ -575,17 +547,6 @@ namespace BugTracker.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BugTracker.Models.TicketLogItem", b =>
-                {
-                    b.HasOne("BugTracker.Models.TicketHistory", "TicketHistory")
-                        .WithOne("TicketLogItem")
-                        .HasForeignKey("BugTracker.Models.TicketLogItem", "TicketHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TicketHistory");
-                });
-
             modelBuilder.Entity("BugTracker.Models.TicketNotification", b =>
                 {
                     b.HasOne("BugTracker.Models.Ticket", "Ticket")
@@ -689,11 +650,6 @@ namespace BugTracker.Data.Migrations
                     b.Navigation("TicketHistories");
 
                     b.Navigation("TicketNotifications");
-                });
-
-            modelBuilder.Entity("BugTracker.Models.TicketHistory", b =>
-                {
-                    b.Navigation("TicketLogItem");
                 });
 #pragma warning restore 612, 618
         }

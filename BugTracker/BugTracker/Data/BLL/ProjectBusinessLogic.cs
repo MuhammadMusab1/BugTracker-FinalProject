@@ -42,7 +42,8 @@ namespace BugTracker.Data.BLL
             ApplicationUser user = await UserManager.FindByIdAsync(devId);
             Project project = ProjectRepo.Get(projId);
             project.Developers.Add(user);
-            user.ProjectsOwned.Add(project);
+            user.ProjectAssigned = project; //One to many between Developer and Project(ProjectAssigned is the assigned project to a Developer)
+            user.ProjectAssignedId = project.Id;
             ProjectRepo.Save();
         }
 

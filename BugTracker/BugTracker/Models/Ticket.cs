@@ -7,6 +7,9 @@
         public string Description { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public TicketPriority Priority { get; set; }
+        public TicketStatus Status { get; set; }
+        public TicketType Type { get; set; }
         public int ProjectId { get; set; }
         public Project Project { get; set; }
         public string? DeveloperId { get; set; }
