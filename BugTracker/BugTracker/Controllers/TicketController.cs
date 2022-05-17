@@ -21,5 +21,10 @@ namespace BugTracker.Controllers
         {
             return View();
         }
+        [HttpGet]
+        public IActionResult CreateTicket()
+        {
+            return View();
+        }
     }
 }
