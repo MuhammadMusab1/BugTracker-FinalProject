@@ -1,4 +1,5 @@
 ﻿using BugTracker.Data;
+using BugTracker.Data.DAL;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,14 +9,16 @@ namespace BugTracker.Controllers
 {
     public class TicketController : Controller
     {
-        private ApplicationDbContext _db { get; set; }
+        private ProjectRepository _projectRepo { get; set; }
+        private TicketRepository _ticketRepo { get; set; }
         private UserManager<ApplicationUser> _userManager { get; set; }
         private RoleManager<IdentityRole> _roleManager { get; set; }
         public TicketController(ApplicationDbContext Db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            _db = Db;
             _userManager = userManager;
             _roleManager = roleManager;
+            _projectRepo = new ProjectRepository(Db);
+            _ticketRepo = new TicketRepository(Db);
         }
 
         public IActionResult Index()
@@ -29,26 +32,32 @@ namespace BugTracker.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult CreateTicket([Bind("Title, Description, CreatedDate, UpdatedDate, Priority, Status, Type, SubmitterId, ProjectId")] Ticket newTicket)
+        public async Task<IActionResult> CreateTicket([Bind("Title, Description, CreatedDate, UpdatedDate, Priority, Status, Type, SubmitterId, ProjectId")] Ticket newTicket)
         {
             //clear validation for properties you need but will not get from the form
             ModelState.ClearValidationState("Project");
             ModelState.ClearValidationState("Submitter");
-            Project projectForTicket = _db.Project.Include(project => project.ProjectManager).First(project => project.Id == newTicket.ProjectId);
-            ApplicationUser submitter = _db.Users.Include(user => user.ProjectsOwned).First(user => user.Id == newTicket.SubmitterId);
 
-            //add them manually
-            newTicket.Project = projectForTicket;
+            Project project = _projectRepo.Get(project => project.Id == newTicket.ProjectId);
+
+            ApplicationUser submitter = await _userManager.FindByIdAsync(newTicket.SubmitterId);
+            List<Project> projectsOwnedBySubmitter = _projectRepo.GetList(project => project.ProjectManagerId == submitter.Id).ToList();
+            submitter.ProjectsOwned = projectsOwnedBySubmitter;
+
+            ApplicationUser projectManager = await _userManager.FindByIdAsync(project.ProjectManagerId);
+
+            //add them manually to validate the model
+            newTicket.Project = project;
             newTicket.Submitter = submitter;
 
-            //TryValidateModel(newTicket) will only be true once targets on ModelState.ClearValidationState() are either valid or unvalidated.
+            //TryValidateModel(newTicket) will only be true once targets on ModelState.ClearValidationState() are valid
             //if even one property is invalid the whole model is invalid.
             if (TryValidateModel(newTicket))
             {
                 submitter.SubmittedTickets.Add(newTicket);
-                projectForTicket.Tickets.Add(newTicket);
-                _db.Ticket.Add(newTicket);
-                _db.SaveChanges();
+                project.Tickets.Add(newTicket);
+                _ticketRepo.Add(newTicket);
+                await _userManager.UpdateAsync(submitter); //since we used _userManager in this method we can't use _ticketRepo.Save()
                 return RedirectToAction("Index");
             }
             return View();
