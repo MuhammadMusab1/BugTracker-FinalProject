@@ -1,4 +1,6 @@
-﻿namespace BugTracker.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BugTracker.Models
 {
     public class Ticket
     {
@@ -38,8 +40,11 @@
 
     public enum TicketType
     {
+        [Display(Name = "Crash Report")]
         CrashReport,
+        [Display(Name = "Account Issue")]
         AccountIssue,
+        [Display(Name = "General Question")]
         GeneralQuestion
     };
 

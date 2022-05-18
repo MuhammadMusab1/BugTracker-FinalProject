@@ -116,7 +116,7 @@ namespace BugTracker.Data.Migrations
 
                     b.HasIndex("ProjectManagerId");
 
-                    b.ToTable("Project");
+                    b.ToTable("Project", (string)null);
                 });
 
             modelBuilder.Entity("BugTracker.Models.Ticket", b =>
@@ -168,7 +168,7 @@ namespace BugTracker.Data.Migrations
 
                     b.HasIndex("SubmitterId");
 
-                    b.ToTable("Ticket");
+                    b.ToTable("Ticket", (string)null);
                 });
 
             modelBuilder.Entity("BugTracker.Models.TicketAttachment", b =>
@@ -207,7 +207,7 @@ namespace BugTracker.Data.Migrations
 
                     b.HasIndex("TicketId");
 
-                    b.ToTable("TicketAttachment");
+                    b.ToTable("TicketAttachment", (string)null);
                 });
 
             modelBuilder.Entity("BugTracker.Models.TicketComment", b =>
@@ -238,7 +238,7 @@ namespace BugTracker.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TicketComment");
+                    b.ToTable("TicketComment", (string)null);
                 });
 
             modelBuilder.Entity("BugTracker.Models.TicketHistory", b =>
@@ -268,7 +268,7 @@ namespace BugTracker.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TicketHistory");
+                    b.ToTable("TicketHistory", (string)null);
                 });
 
             modelBuilder.Entity("BugTracker.Models.TicketLogItem", b =>
@@ -307,7 +307,7 @@ namespace BugTracker.Data.Migrations
                     b.HasIndex("TicketHistoryId")
                         .IsUnique();
 
-                    b.ToTable("TicketLogItem");
+                    b.ToTable("TicketLogItem", (string)null);
                 });
 
             modelBuilder.Entity("BugTracker.Models.TicketNotification", b =>
@@ -331,7 +331,7 @@ namespace BugTracker.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TicketNotification");
+                    b.ToTable("TicketNotification", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
