@@ -41,7 +41,7 @@ namespace BugTracker.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> CreateTicket([Bind("Title, Description, CreatedDate, UpdatedDate, Priority, Status, Type, SubmitterId, ProjectId")] Ticket newTicket)
+        public async Task<IActionResult> CreateTicket([Bind("Title, Description, CreatedDate, UpdatedDate, Priority, Status, Type, SubmitterId, ProjectId")] Ticket newTicket, List<IFormFile> files)
         {
             //clear validation for properties you need but will not get from the form
             ModelState.ClearValidationState("Project");
@@ -63,6 +63,10 @@ namespace BugTracker.Controllers
             //if even one property is invalid the whole model is invalid.
             if (TryValidateModel(newTicket))
             {
+                if (files != null)
+                {
+
+                }
                 submitter.SubmittedTickets.Add(newTicket);
                 project.Tickets.Add(newTicket);
                 _ticketRepo.Add(newTicket);
