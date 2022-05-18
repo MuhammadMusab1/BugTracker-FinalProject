@@ -15,6 +15,7 @@ namespace BugTracker.Controllers
         private TicketRepository _ticketRepo { get; set; }
         private TicketHistoryRepository _ticketHistoryRepo { get; set; }
         private TicketLogItemRepository _ticketLogItemRepo { get; set; }
+        private CommentAndAttachmentBusinessLogic commentattachmentBL { get; set; }
         private TicketBusinessLogic ticketBL { get; set; }
         private UserManager<ApplicationUser> _userManager { get; set; }
         private RoleManager<IdentityRole> _roleManager { get; set; }
@@ -28,6 +29,7 @@ namespace BugTracker.Controllers
             _ticketHistoryRepo = new TicketHistoryRepository(Db);
             _ticketLogItemRepo = new TicketLogItemRepository(Db);
             ticketBL = new TicketBusinessLogic(_projectRepo, _ticketRepo, _ticketHistoryRepo, _ticketLogItemRepo, _userManager, _roleManager);
+            commentattachmentBL = new CommentAndAttachmentBusinessLogic(_projectRepo, _ticketRepo, _userManager, _roleManager);
         }
 
         public IActionResult Index()
@@ -65,7 +67,24 @@ namespace BugTracker.Controllers
             {
                 if (files != null)
                 {
+                    var size = files.Sum(f => f.Length);
+                    var filePaths = new List<string>();
 
+                    foreach (var formFile in files)
+                    {
+                        if (formFile.Length > 0)
+                        {
+                            var filePath = Path.Combine($"{Directory.GetCurrentDirectory()}/UploadedFiles", formFile.FileName);
+                            filePaths.Add(filePath);
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await formFile.CopyToAsync(stream);
+                            }
+
+                            commentattachmentBL.AddAttachmentToTicket(formFile.FileName, filePath, "1", 1);
+                        }
+                    }
                 }
                 submitter.SubmittedTickets.Add(newTicket);
                 project.Tickets.Add(newTicket);
