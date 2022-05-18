@@ -13,6 +13,7 @@ namespace BugTracker.Controllers
         private ProjectRepository _projectRepo { get; set; }
         private TicketRepository _ticketRepo { get; set; }
         private TicketHistoryRepository _ticketHistoryRepo { get; set; }
+        private TicketLogItemRepository _ticketLogItemRepo { get; set; }
         private UserManager<ApplicationUser> _userManager { get; set; }
         private RoleManager<IdentityRole> _roleManager { get; set; }
         public TicketController(ApplicationDbContext Db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
@@ -23,6 +24,7 @@ namespace BugTracker.Controllers
             _projectRepo = new ProjectRepository(Db);
             _ticketRepo = new TicketRepository(Db);
             _ticketHistoryRepo = new TicketHistoryRepository(Db);
+            _ticketLogItemRepo = new TicketLogItemRepository(Db);
         }
 
         public IActionResult Index()
@@ -162,7 +164,7 @@ namespace BugTracker.Controllers
                         ticket.UpdatedDate = DateTime.Now;
                         //save to database
                         _ticketHistoryRepo.Add(ticketHistory);
-                        _db.TicketLogItem.Add(ticketLogItem); //_ticketLogItem.Add(ticketLogItem)
+                        _ticketLogItemRepo.Add(ticketLogItem);
                         await _userManager.UpdateAsync(userUpdatingTheTicket);//acts as db.SaveChanges()
                     }
                     return View();
