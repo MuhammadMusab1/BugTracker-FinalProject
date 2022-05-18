@@ -1,0 +1,19 @@
+﻿@model List<Project>
+
+    <h2>Project Manager Dashboard</h2>
+    <a asp-action="CreateProject">Create a Project</a> 
+    @foreach(var proj in @Model) 
+    {
+        <h3>Project Name</h3>
+        <p>@proj.Name</p>
+        <h4>Project Description</h4>
+        <p>@proj.Description</p>
+        <a asp-action="UpdateProject" asp-route-projId="@proj.Id">Update Project</a>
+        <ul>
+        @foreach(var dev in @proj.Developers)
+        {
+            <li>@dev.Email</li>
+        }
+        </ul>
+        <hr />
+    }
