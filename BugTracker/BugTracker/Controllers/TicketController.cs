@@ -1,4 +1,5 @@
 ﻿using BugTracker.Data;
+using BugTracker.Data.BLL;
 using BugTracker.Data.DAL;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +15,7 @@ namespace BugTracker.Controllers
         private TicketRepository _ticketRepo { get; set; }
         private TicketHistoryRepository _ticketHistoryRepo { get; set; }
         private TicketLogItemRepository _ticketLogItemRepo { get; set; }
+        private TicketBusinessLogic ticketBL { get; set; }
         private UserManager<ApplicationUser> _userManager { get; set; }
         private RoleManager<IdentityRole> _roleManager { get; set; }
         public TicketController(ApplicationDbContext Db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
@@ -25,6 +27,7 @@ namespace BugTracker.Controllers
             _ticketRepo = new TicketRepository(Db);
             _ticketHistoryRepo = new TicketHistoryRepository(Db);
             _ticketLogItemRepo = new TicketLogItemRepository(Db);
+            ticketBL = new TicketBusinessLogic(_projectRepo, _ticketRepo, _ticketHistoryRepo, _ticketLogItemRepo, _userManager, _roleManager);
         }
 
         public IActionResult Index()
@@ -97,76 +100,7 @@ namespace BugTracker.Controllers
                 try
                 {
                     ApplicationUser userUpdatingTheTicket = await _userManager.FindByEmailAsync(User.Identity.Name);
-                    Ticket ticket = _ticketRepo.Get(ticket => ticket.Id == ticketId);
-                    TicketHistory ticketHistory = new TicketHistory();
-                    TicketLogItem ticketLogItem = new TicketLogItem();//mirage of the old ticket
-                    //Title, Description, Type, status, Priority are the only properties that can be change
-                    //Assigning and Unassigning developer to ticket will be handled in a different method
-                    if(ticket.Title != updatedTicket.Title)
-                    {
-                        ticketHistory.PropertiesChanged.Add($"Title({updatedTicket.Title})"); //oldValue(newValue)
-                    }
-                    if(ticket.Description != updatedTicket.Description)
-                    {
-                        ticketHistory.PropertiesChanged.Add($"Description({updatedTicket.Description})");
-                    }
-                    if (ticket.Status != updatedTicket.Status)
-                    {
-                        ticketHistory.PropertiesChanged.Add($"Status({updatedTicket.Status})");
-                    }
-                    if (ticket.Priority != updatedTicket.Priority)
-                    {
-                        ticketHistory.PropertiesChanged.Add($"Priority({updatedTicket.Priority})");
-                    }
-                    if (ticket.Type != updatedTicket.Type)
-                    {
-                        ticketHistory.PropertiesChanged.Add($"Type({updatedTicket.Type})");
-                    }
-                    if(!ticketHistory.PropertiesChanged.Any()) //no properties changed
-                    {
-                        //don't save ticketHistory, ticketLogItem and update the ticket
-                        return View("Index");
-                    }
-                    else
-                    {
-
-                        //make mirage of the oldTicket
-                        ticketLogItem.OldTitle = ticket.Title;
-                        ticketLogItem.OldDescription = ticket.Description;
-                        ticketLogItem.OldStatus = ticket.Status.ToString();
-                        ticketLogItem.OldPriority = ticket.Priority.ToString();
-                        ticketLogItem.OldType = ticket.Type.ToString();
-
-                        //ticket is now updatedTicket
-                        //ticket = updatedTicket; //will a new ticket when saving
-                        ticket.Title = updatedTicket.Title;
-                        ticket.Description = updatedTicket.Description;
-                        ticket.Status = updatedTicket.Status;
-                        ticket.Priority = updatedTicket.Priority;
-                        ticket.Type = updatedTicket.Type;
-
-                        List<TicketHistory> ticketHistoriesOfTicket = _ticketHistoryRepo.GetList(ticketH => ticketH.TicketId == ticketId).ToList();
-                        List<TicketHistory> ticketHistoriesOfUser = _ticketHistoryRepo.GetList(ticketH => ticketH.UserId == userUpdatingTheTicket.Id).ToList();
-                        ticket.TicketHistories = ticketHistoriesOfTicket;
-                        userUpdatingTheTicket.TicketHistories = ticketHistoriesOfUser;
-
-                        //One to One
-                        ticketHistory.TicketLogItem = ticketLogItem;
-                        ticketHistory.TicketLogItemId = ticketLogItem.Id;
-                        //Many to Many
-                        ticket.TicketHistories.Add(ticketHistory);
-                        userUpdatingTheTicket.TicketHistories.Add(ticketHistory);
-                        ticketHistory.TicketId = ticket.Id;
-                        ticketHistory.Ticket = ticket;
-                        ticketHistory.User = userUpdatingTheTicket;
-                        ticketHistory.UserId = userUpdatingTheTicket.Id;
-                        ticketHistory.ChangedDate = DateTime.Now;
-                        ticket.UpdatedDate = DateTime.Now;
-                        //save to database
-                        _ticketHistoryRepo.Add(ticketHistory);
-                        _ticketLogItemRepo.Add(ticketLogItem);
-                        await _userManager.UpdateAsync(userUpdatingTheTicket);//acts as db.SaveChanges()
-                    }
+                    Ticket ticket = await ticketBL.UpdateTicketWithTicketHistoryAndTicketLog(ticketId, updatedTicket, userUpdatingTheTicket);
                     return View();
                 }
                 catch(Exception ex)
