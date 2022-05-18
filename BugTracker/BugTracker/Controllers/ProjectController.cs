@@ -5,6 +5,7 @@ using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BugTracker.Controllers
 {
@@ -27,6 +28,11 @@ namespace BugTracker.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+        [Authorize(Roles = "Project Manager")]
+        public IActionResult ProjManagerDashboard()
+        {
+            return View(projBl.GetAllProjects());
         }
 
         [Authorize(Roles = "Admin, Project Manager")]
@@ -57,14 +63,39 @@ namespace BugTracker.Controllers
                     projBl.ProjectRepo.Add(project);
                     projBl.ProjectRepo.Save();
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction("ProjManagerDashboard");
                 }
             }
             catch (Exception ex)
             {
-                return NotFound();
+                return NotFound("Something went wrong, please try again");
             }
             return View("Index");
+        }
+
+        [Authorize(Roles ="Project Manager")]
+        [HttpGet]
+        public IActionResult UpdateProject(int projId)
+        {
+            Project project = projBl.ProjectRepo.Get(projId);
+            return View(project);
+        }
+        [HttpPost]
+        public IActionResult UpdateProject(int projId, string? name, string? description)
+        {
+            Project project = projBl.ProjectRepo.Get(projId);
+            try
+            {
+                project.Name = name;
+                project.Description = description;
+                projBl.ProjectRepo.Update(project);
+                projBl.ProjectRepo.Save();
+                return RedirectToAction("ProjManagerDashboard");
+            }
+            catch (Exception ex)
+            {
+                return NotFound("Something went wrong, please try again");
+            }
         }
     }
 }
