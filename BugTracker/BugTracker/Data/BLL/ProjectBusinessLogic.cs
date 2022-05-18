@@ -7,10 +7,15 @@ namespace BugTracker.Data.BLL
 {
     public class ProjectBusinessLogic
     {
-        private IRepository<Project> ProjectRepo;
+        public IRepository<Project> ProjectRepo;
         private IRepository<Ticket> TicketRepo;
         private UserManager<ApplicationUser> UserManager;
         private RoleManager<IdentityRole> RoleManager;
+
+        public ProjectBusinessLogic(IRepository<Project> repoArg)
+        {
+            ProjectRepo = repoArg;
+        }
 
         public ProjectBusinessLogic(IRepository<Project> projRepo, IRepository<Ticket> ticketRepo, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {

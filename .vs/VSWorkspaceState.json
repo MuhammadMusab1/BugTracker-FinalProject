@@ -1,10 +1,7 @@
 {
   "ExpandedNodes": [
-    "",
-    "\\BugTracker",
-    "\\BugTracker\\BugTracker",
-    "\\BugTracker\\BugTracker\\Data"
+    ""
   ],
-  "SelectedNode": "\\BugTracker\\BugTracker\\Data\\ApplicationDbContext.cs",
+  "SelectedNode": "\\BugTracker.sln",
   "PreviewInSolutionExplorer": false
 }
