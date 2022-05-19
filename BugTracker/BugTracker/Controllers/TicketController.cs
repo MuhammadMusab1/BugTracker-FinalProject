@@ -4,6 +4,7 @@ using BugTracker.Data.DAL;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Controllers
@@ -112,6 +113,14 @@ namespace BugTracker.Controllers
             {
                 return BadRequest("ticketId is null at UpdateTicket post method");
             }
+        }
+        //https://localhost:7045/ticket/assignDeveloperToTicket
+        [HttpGet]
+        public async Task<IActionResult> AssignDeveloperToTicket() //parameter: int? ticketId
+        {
+            List<ApplicationUser> developers = new List<ApplicationUser>(await _userManager.GetUsersInRoleAsync("Developer"));
+            ViewBag.developerList = new SelectList(developers, "Id", "UserName");
+            return View();
         }
     }
 }
