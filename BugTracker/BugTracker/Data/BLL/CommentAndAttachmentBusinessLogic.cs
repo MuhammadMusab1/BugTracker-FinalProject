@@ -9,42 +9,55 @@ namespace BugTracker.Data.BLL
     {
         private IRepository<Project> ProjectRepo;
         private IRepository<Ticket> TicketRepo;
+        private IRepository<TicketAttachment> TicketAttachmentRepo;
+        private IRepository<TicketComment> TicketCommentRepo;
         private UserManager<ApplicationUser> UserManager;
-        private RoleManager<IdentityRole> RoleManager;
 
-        public CommentAndAttachmentBusinessLogic(IRepository<Project> projRepo, IRepository<Ticket> ticketRepo, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public CommentAndAttachmentBusinessLogic(IRepository<Project> projRepo, IRepository<Ticket> ticketRepo, IRepository<TicketAttachment> ticketAttachmentRepo, IRepository<TicketComment> ticketCommentRepo, UserManager<ApplicationUser> userManager)
         {
             ProjectRepo = projRepo;
             TicketRepo = ticketRepo;
+            TicketAttachmentRepo = ticketAttachmentRepo;
+            TicketCommentRepo = ticketCommentRepo;
             UserManager = userManager;
-            RoleManager = roleManager;
         }
 
-        public async void AddCommentToTicket(int ticketId, string userId, TicketComment comment)
+        public void AddCommentToTicket(int ticketId, string comment)
         {
             Ticket ticket = TicketRepo.Get(ticketId);
-            //ApplicationUser user = await UserManager.FindByIdAsync(userId);
-            //bool HasPerms = await UserManager.IsInRoleAsync(user, "Admin");
-            //if (ticket.Submitter.Id == userId || ticket.DeveloperId == userId || HasPerms == true)
-            ticket.TicketComments.Add(comment);
+            TicketComment ticketComment = new TicketComment()
+            {
+                Comment = comment,
+                CreatedDate = DateTime.Now,
+                Ticket = ticket,
+                TicketId = ticketId,
+                User = ticket.Submitter,
+                UserId = ticket.SubmitterId
+            };
+            TicketCommentRepo.Add(ticketComment);
         }
 
-        public void AddAttachmentToTicket(string fileName, string filePath, string userId, int ticketId)
+        public void AddAttachmentToTicket(string fileName, string filePath, Ticket ticket, ApplicationUser submitter)
         {
             TicketAttachment ticketAttachment = new TicketAttachment()
             {
                 CreatedDate = DateTime.Now,
                 FileInBytes = File.ReadAllBytes(filePath),
-                SubmitterId = userId,
-                TicketId = ticketId,
+                SubmitterId = submitter.Id,
+                Submitter = submitter,
+                TicketId = ticket.Id,
+                Ticket = ticket,
                 FileName = fileName,
                 FileExtension = Path.GetExtension(filePath)
             };
+            TicketAttachmentRepo.Add(ticketAttachment);
         }
 
-        public void EditCommentOnTicket()
+        public void EditCommentOnTicket(TicketComment ticketComment, string newComment)
         {
-
+            TicketComment commentToEdit = ticketComment.Ticket.TicketComments.First(tc => tc.Id == ticketComment.Id);
+            commentToEdit.Comment = "";
+            commentToEdit.Comment = newComment;
         }
     }
 }

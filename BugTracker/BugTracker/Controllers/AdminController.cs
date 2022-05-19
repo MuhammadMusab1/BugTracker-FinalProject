@@ -23,6 +23,12 @@ namespace BugTracker.Controllers
         {
             return View();
         }
+
+        public IActionResult AdminDashboard()
+        {
+            return View();
+        }
+
         [HttpGet]
         public IActionResult AssignRoleToUser()
         {
