@@ -15,6 +15,8 @@ namespace BugTracker.Controllers
         private TicketRepository _ticketRepo { get; set; }
         private TicketHistoryRepository _ticketHistoryRepo { get; set; }
         private TicketLogItemRepository _ticketLogItemRepo { get; set; }
+        private TicketAttachmentRepository _ticketAttachmentRepo { get; set; }
+        private TicketCommentRepository _ticketCommentRepo { get; set; }
         private CommentAndAttachmentBusinessLogic commentattachmentBL { get; set; }
         private TicketBusinessLogic ticketBL { get; set; }
         private UserManager<ApplicationUser> _userManager { get; set; }
@@ -28,20 +30,33 @@ namespace BugTracker.Controllers
             _ticketRepo = new TicketRepository(Db);
             _ticketHistoryRepo = new TicketHistoryRepository(Db);
             _ticketLogItemRepo = new TicketLogItemRepository(Db);
+            _ticketAttachmentRepo = new TicketAttachmentRepository(Db);
+            _ticketCommentRepo = new TicketCommentRepository(Db);
             ticketBL = new TicketBusinessLogic(_projectRepo, _ticketRepo, _ticketHistoryRepo, _ticketLogItemRepo, _userManager, _roleManager);
-            commentattachmentBL = new CommentAndAttachmentBusinessLogic(_projectRepo, _ticketRepo, _userManager, _roleManager);
+            commentattachmentBL = new CommentAndAttachmentBusinessLogic(_projectRepo, _ticketRepo, _ticketAttachmentRepo, _ticketCommentRepo, _userManager);
         }
 
         public IActionResult Index()
         {
             return View();
         }
+
+        public IActionResult ProjectTickets(int projectId)
+        {
+            ViewBag.ProjectId = projectId;
+            return View(_ticketRepo.GetList(t => t.ProjectId == projectId));
+        }
+
         //https://localhost:7045/ticket/createTicket
         [HttpGet]
-        public IActionResult CreateTicket()
+        public IActionResult CreateTicket(int projectId)
         {
+            string userName = User.Identity.Name;
+            ViewBag.SubmitterId = _userManager.FindByEmailAsync(userName);
+            ViewBag.ProjectId = projectId;
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> CreateTicket([Bind("Title, Description, CreatedDate, UpdatedDate, Priority, Status, Type, SubmitterId, ProjectId")] Ticket newTicket, List<IFormFile> files)
         {
@@ -82,7 +97,7 @@ namespace BugTracker.Controllers
                                 await formFile.CopyToAsync(stream);
                             }
 
-                            commentattachmentBL.AddAttachmentToTicket(formFile.FileName, filePath, "1", 1);
+                            commentattachmentBL.AddAttachmentToTicket(formFile.FileName, filePath, newTicket, submitter);
                         }
                     }
                 }
@@ -90,10 +105,11 @@ namespace BugTracker.Controllers
                 project.Tickets.Add(newTicket);
                 _ticketRepo.Add(newTicket);
                 await _userManager.UpdateAsync(submitter); //since we used _userManager in this method we can't use _ticketRepo.Save()
-                return RedirectToAction("Index");
+                return RedirectToAction("ProjectTickets", project.Id);
             }
             return View();
         }
+
         //https://localhost:7045/ticket/updateTicket?ticketId=5
         [HttpGet]
         public IActionResult UpdateTicket(int? ticketId)
@@ -135,6 +151,16 @@ namespace BugTracker.Controllers
             {
                 return BadRequest("ticketId is null at UpdateTicket post method");
             }
+        }
+
+        public async Task<IActionResult> DeleteTicket(int ticketId)
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> TicketDetails(int ticketId)
+        {
+            return View(_ticketRepo.Get(ticketId));
         }
     }
 }

@@ -1,10 +1,10 @@
-﻿@model BugTracker.Models.Ticket
+﻿@model BugTracker.Models.Ticket;
 
 @{
     ViewData["Title"] = "CreateTicket";
 }
 
-<h1>CreateTicket</h1>
+<h1>Create Ticket</h1>
 
 <h4>Ticket</h4>
 <hr />
@@ -49,16 +49,22 @@
                     <input type="file" name="files" multiple />
                 </div>
             </div>
-            <div class="form-group">
+            <div>
+                <br />
+            </div>
+            @*<div class="form-group">
                 <div class="col-md-10">
                     <input type="submit" value="Upload" />
                 </div>
+            </div>*@
+            <div>
+                <br />
             </div>
             <div class="form-group">
-                <input asp-for="ProjectId" type="hidden" value="7" class="form-control" />
+                <input asp-for="ProjectId" type="hidden" value="@ViewBag.ProjectId" class="form-control" />
             </div>
             <div class="form-group">
-                <input type="hidden" asp-for="SubmitterId" value="b274beea-a5fb-4cbc-9e74-21b38590c500" class="form-control" />
+                <input type="hidden" asp-for="SubmitterId" value="@ViewBag.SubmitterId" class="form-control" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -68,7 +74,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to Projects</a>
+    <a asp-controller="Project" asp-action="ProjectDetails" asp-route-projectId="@ViewBag.ProjectId">Back to Project</a>
 </div>
 
 @section Scripts {

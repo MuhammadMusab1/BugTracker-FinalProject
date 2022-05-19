@@ -12,6 +12,7 @@ namespace BugTracker.Controllers
     public class ProjectController : Controller
     {
         private ApplicationDbContext _db { get; set; }
+        private IRepository<Project> _projectRepository { get; set; }
         private UserManager<ApplicationUser> _userManager { get; set; }
         private RoleManager<IdentityRole> _roleManager { get; set; }
         private ProjectBusinessLogic projBl { get; set; }
@@ -21,10 +22,21 @@ namespace BugTracker.Controllers
             _db = db;
             _userManager = userManager;
             _roleManager = roleManager;
-
+            _projectRepository = new ProjectRepository(_db);
             projBl = new ProjectBusinessLogic(new ProjectRepository(_db));
             
         }
+
+        public IActionResult AllProjects()
+        {
+            return View(_projectRepository.GetAll());
+        }
+
+        public IActionResult ProjectDetails(int projectId)
+        {
+            return View(_projectRepository.Get(projectId));
+        }
+
         public IActionResult Index()
         {
             return View();
