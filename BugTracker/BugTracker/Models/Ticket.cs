@@ -7,7 +7,9 @@ namespace BugTracker.Models
         public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        [Display(Name = "Created Date")]
         public DateTime CreatedDate { get; set; }
+        [Display(Name = "Updated Date")]
         public DateTime UpdatedDate { get; set; }
         public TicketPriority Priority { get; set; }
         public TicketStatus Status { get; set; }
