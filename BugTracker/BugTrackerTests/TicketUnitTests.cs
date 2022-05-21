@@ -18,6 +18,7 @@ namespace BugTrackerTests
         public Mock<IRepository<Project>> projectRepoMock { get; set; }
         public Mock<IRepository<TicketHistory>> ticketHistoryRepoMock { get; set; }
         public Mock<IRepository<TicketLogItem>> ticketLogItemRepoMock { get; set; }
+        public Mock<IRepository<TicketNotification>> ticketNotificationRepoMock { get; set; }
         public Mock<UserManager<ApplicationUser>> userManagerMock { get; set; }
         public Mock<RoleManager<IdentityRole>> roleManagerMock { get; set; }
         public TicketBusinessLogic ticketBL { get; set; }
@@ -29,6 +30,7 @@ namespace BugTrackerTests
             projectRepoMock = new Mock<IRepository<Project>>();
             ticketHistoryRepoMock = new Mock<IRepository<TicketHistory>>();
             ticketLogItemRepoMock = new Mock<IRepository<TicketLogItem>>();
+            ticketNotificationRepoMock = new Mock<IRepository<TicketNotification>>();
             //stackoverflow solution(mine was giving errors)
             roleManagerMock = new Mock<RoleManager<IdentityRole>>(Mock.Of<IRoleStore<IdentityRole>>(), null, null, null, null);
             userManagerMock = new Mock<UserManager<ApplicationUser>>(Mock.Of<IUserStore<ApplicationUser>>(), null, null, null, null, null, null, null, null);
@@ -109,7 +111,7 @@ namespace BugTrackerTests
             ticketLogItemRepoMock.Setup(repo => repo.GetAll()).Returns(new HashSet<TicketLogItem>());
 
             //Instantiate TicketBL
-            ticketBL = new TicketBusinessLogic(projectRepoMock.Object, ticketRepoMock.Object, ticketHistoryRepoMock.Object, ticketLogItemRepoMock.Object, userManagerMock.Object, roleManagerMock.Object);
+            ticketBL = new TicketBusinessLogic(projectRepoMock.Object, ticketRepoMock.Object, ticketHistoryRepoMock.Object, ticketLogItemRepoMock.Object, ticketNotificationRepoMock.Object, userManagerMock.Object, roleManagerMock.Object);
         }
         [TestMethod]
         public async Task UpdateMethodUpdatesTheTicketAndCreateTicketHistoryAndTicketLogForIt()
@@ -161,6 +163,36 @@ namespace BugTrackerTests
             Assert.IsNotNull(ticket.Developer);
             Assert.IsNotNull(ticket.DeveloperId);
             Assert.AreEqual(1, developer.AssignedTickets.Count()); //after add a ticket to List
+        }
+        [TestMethod]
+        public async Task SendNotificationToDeveloperWhenAssignedTicketWorks()
+        {
+            //Arrange
+            ApplicationUser developer = await userManagerMock.Object.FindByIdAsync("testGUID3");
+            Ticket ticket = new Ticket
+            {
+                Id = 3,
+                Title = "Testing Notification",
+                Description = "This ticket is for only testing notifications",
+                Developer = developer,
+                DeveloperId = developer.Id,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Parse("June 12 2022 12:00"),
+                Type = TicketType.AccountIssue,
+                Priority = TicketPriority.Medium,
+                Status = TicketStatus.OnHold,
+            };
+            developer.AssignedTickets = new HashSet<Ticket>();
+            developer.AssignedTickets.Add(ticket);
+            List<TicketNotification> allNotifications = new List<TicketNotification>();
+            ticketNotificationRepoMock.Setup(repo => repo.GetList(It.IsAny<Func<TicketNotification, bool>>())).Returns(new HashSet<TicketNotification>());
+            ticketNotificationRepoMock.Setup(repo => repo.Add(It.IsAny<TicketNotification>())).Callback<TicketNotification>((ticketNot) => allNotifications.Add(ticketNot));
+            //Act 
+            await ticketBL.SendNotificationToDeveloperWhenAssignedTicket(ticket);
+            //Assert
+            Assert.AreEqual(1, ticket.TicketNotifications.Count());
+            Assert.AreEqual(1, developer.TicketNotifications.Count());
+            Assert.AreEqual(1, allNotifications.Count());
         }
     }
 }

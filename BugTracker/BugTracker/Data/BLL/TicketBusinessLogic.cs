@@ -10,10 +10,11 @@ namespace BugTracker.Data.BLL
         private IRepository<Ticket> TicketRepo;
         private IRepository<TicketHistory> TicketHistoryRepo;
         private IRepository<TicketLogItem> TicketLogItemRepo;
+        private IRepository<TicketNotification> TicketNotificationRepo;
         private UserManager<ApplicationUser> UserManager;
         private RoleManager<IdentityRole> RoleManager;
 
-        public TicketBusinessLogic(IRepository<Project> projRepo, IRepository<Ticket> ticketRepo, IRepository<TicketHistory> ticketHistoryRepo, IRepository<TicketLogItem> ticketLogItemRepo, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public TicketBusinessLogic(IRepository<Project> projRepo, IRepository<Ticket> ticketRepo, IRepository<TicketHistory> ticketHistoryRepo, IRepository<TicketLogItem> ticketLogItemRepo, IRepository<TicketNotification> ticketNotificationRepo,UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             ProjectRepo = projRepo;
             TicketRepo = ticketRepo;
@@ -21,6 +22,7 @@ namespace BugTracker.Data.BLL
             RoleManager = roleManager;
             TicketHistoryRepo = ticketHistoryRepo;
             TicketLogItemRepo = ticketLogItemRepo;
+            TicketNotificationRepo = ticketNotificationRepo;
         }
 
         public List<Ticket> GetAllTickets()
@@ -120,6 +122,23 @@ namespace BugTracker.Data.BLL
             await UserManager.UpdateAsync(developer); //acts like _db.SaveChanges()
 
             return ticketToAssign;
+        }
+        public async Task<Ticket> SendNotificationToDeveloperWhenAssignedTicket(Ticket ticket)
+        {
+            TicketNotification ticketNotification = new TicketNotification();
+            ticketNotification.Ticket = ticket;
+            ticketNotification.TicketId = ticket.Id;
+            ticketNotification.User = ticket.Developer;
+            ticketNotification.UserId = ticket.DeveloperId;
+            ticketNotification.Message = $"{ticket.Developer.UserName}, you have been assigned to the Ticket: {ticket.Title}!!";
+            TicketNotificationRepo.GetList(ticketNot => ticketNot.TicketId == ticket.Id).ToList();
+            TicketNotificationRepo.GetList(ticketNot => ticketNot.UserId == ticket.DeveloperId).ToList();
+            ticket.TicketNotifications.Add(ticketNotification);
+            ticket.Developer.TicketNotifications.Add(ticketNotification);
+            TicketNotificationRepo.Add(ticketNotification);
+            await UserManager.UpdateAsync(ticket.Developer);
+
+            return ticket;
         }
     }
 }

@@ -18,6 +18,7 @@ namespace BugTracker.Controllers
         private TicketLogItemRepository _ticketLogItemRepo { get; set; }
         private TicketAttachmentRepository _ticketAttachmentRepo { get; set; }
         private TicketCommentRepository _ticketCommentRepo { get; set; }
+        private TicketNotificationRepository _ticketNotificationRepo { get; set; }
         private CommentAndAttachmentBusinessLogic commentattachmentBL { get; set; }
         private TicketBusinessLogic ticketBL { get; set; }
         private UserManager<ApplicationUser> _userManager { get; set; }
@@ -33,7 +34,8 @@ namespace BugTracker.Controllers
             _ticketLogItemRepo = new TicketLogItemRepository(Db);
             _ticketAttachmentRepo = new TicketAttachmentRepository(Db);
             _ticketCommentRepo = new TicketCommentRepository(Db);
-            ticketBL = new TicketBusinessLogic(_projectRepo, _ticketRepo, _ticketHistoryRepo, _ticketLogItemRepo, _userManager, _roleManager);
+            _ticketNotificationRepo = new TicketNotificationRepository(Db);
+            ticketBL = new TicketBusinessLogic(_projectRepo, _ticketRepo, _ticketHistoryRepo, _ticketLogItemRepo, _ticketNotificationRepo,_userManager, _roleManager);
             commentattachmentBL = new CommentAndAttachmentBusinessLogic(_projectRepo, _ticketRepo, _ticketAttachmentRepo, _ticketCommentRepo, _userManager);
         }
 
@@ -57,10 +59,10 @@ namespace BugTracker.Controllers
 
         //https://localhost:7045/ticket/createTicket
         [HttpGet]
-        public IActionResult CreateTicket(int projectId)
+        public async Task<IActionResult> CreateTicket(int projectId)
         {
-            string userName = User.Identity.Name;
-            ViewBag.SubmitterId = _userManager.FindByEmailAsync(userName);
+            ApplicationUser submitter = await _userManager.FindByEmailAsync(User.Identity.Name);
+            ViewBag.SubmitterId = submitter.Id;
             ViewBag.ProjectId = projectId;
             return View();
         }
@@ -113,7 +115,7 @@ namespace BugTracker.Controllers
                 project.Tickets.Add(newTicket);
                 _ticketRepo.Add(newTicket);
                 await _userManager.UpdateAsync(submitter); //since we used _userManager in this method we can't use _ticketRepo.Save()
-                return RedirectToAction("ProjectTickets", project.Id);
+                return RedirectToAction("ProjectTickets", new { projectId = project.Id });
             }
             return View();
         }
@@ -185,7 +187,8 @@ namespace BugTracker.Controllers
             {
                 try
                 {
-                    await ticketBL.AssignDeveloperToTicketBL(ticketId, developerId);
+                    Ticket ticket = await ticketBL.AssignDeveloperToTicketBL(ticketId, developerId);
+                    await ticketBL.SendNotificationToDeveloperWhenAssignedTicket(ticket);
                     return RedirectToAction("TicketDetails", new {ticketId = ticketId});
                 }
                 catch (Exception ex)
