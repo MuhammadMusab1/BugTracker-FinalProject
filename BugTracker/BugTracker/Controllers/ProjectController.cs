@@ -46,7 +46,7 @@ namespace BugTracker.Controllers
         {
             return View();
         }
-        [Authorize(Roles = "Project Manager")]
+        [Authorize(Roles = "Project Manager, Admin")]
         public IActionResult ProjManagerDashboard()
         {
             return View(projBl.GetAllProjects());
