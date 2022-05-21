@@ -51,9 +51,18 @@ namespace BugTrackerTests
                 NormalizedUserName = "SUBMITTER03@GMAIL.COM",
                 EmailConfirmed = true,
             };
+            ApplicationUser testDeveloper = new ApplicationUser
+            {
+                Id = "testGUID3",
+                Email = "developer03@gmail.com",
+                NormalizedEmail = "DEVELOPER03@GMAIL.COM",
+                UserName = "developer03@gmail.com",
+                NormalizedUserName = "DEVELOPER03@GMAIL.COM",
+                EmailConfirmed = true,
+            };
             List<ApplicationUser> allUsers = new List<ApplicationUser>
             {
-                testprojectManager, testSubmitter
+                testprojectManager, testSubmitter, testDeveloper
             };
 
             Project testProject = new Project
@@ -89,6 +98,10 @@ namespace BugTrackerTests
             //UserManager Setup
             userManagerMock.Setup(repo => repo.FindByNameAsync("musab03@gmail.com")).ReturnsAsync(testprojectManager);
             userManagerMock.Setup(repo => repo.FindByNameAsync("submitter03@gmail.com")).ReturnsAsync(testSubmitter);
+            userManagerMock.Setup(repo => repo.FindByNameAsync("developer03@gmail.com")).ReturnsAsync(testDeveloper);
+            userManagerMock.Setup(repo => repo.FindByIdAsync("testGUID1")).ReturnsAsync(testprojectManager);
+            userManagerMock.Setup(repo => repo.FindByIdAsync("testGUID2")).ReturnsAsync(testSubmitter);
+            userManagerMock.Setup(repo => repo.FindByIdAsync("testGUID3")).ReturnsAsync(testDeveloper);
             userManagerMock.Setup(repo => repo.Users).Returns(allUsers.AsQueryable);
             //TicketHistoryRepo Setup
             ticketHistoryRepoMock.Setup(repo => repo.GetAll()).Returns(new HashSet<TicketHistory>());
@@ -134,6 +147,20 @@ namespace BugTrackerTests
             Assert.AreEqual(ticketHistoriesExpectedCount, ticketHistoriesActualCount);
             Assert.AreEqual(ticketLogItemsExpectedCount, ticketLogItemsActualCount);
 
+        }
+        [TestMethod]
+        public async Task AssignDeveloperToTicketBLLMethodWorks()
+        {
+            //Arrange
+            Ticket ticket = ticketRepoMock.Object.Get(1);
+            ticketRepoMock.Setup(repo => repo.GetList(It.IsAny<Func<Ticket, bool>>())).Returns(new HashSet<Ticket>()); //an empty ListOfAssignedTickets for developer
+            ApplicationUser developer = await userManagerMock.Object.FindByNameAsync("developer03@gmail.com");
+            //Act
+            await ticketBL.AssignDeveloperToTicketBL(ticket.Id, developer.Id);
+            //Assert
+            Assert.IsNotNull(ticket.Developer);
+            Assert.IsNotNull(ticket.DeveloperId);
+            Assert.AreEqual(1, developer.AssignedTickets.Count()); //after add a ticket to List
         }
     }
 }
