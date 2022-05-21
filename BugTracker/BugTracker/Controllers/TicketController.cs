@@ -42,10 +42,16 @@ namespace BugTracker.Controllers
             return View();
         }
 
-        public IActionResult ProjectTickets(int projectId)
+        public async Task<IActionResult> ProjectTickets(int projectId)
         {
             ViewBag.ProjectId = projectId;
-            return View(_ticketRepo.GetList(t => t.ProjectId == projectId));
+            Project project = _projectRepo.Get(projectId);
+            List<Ticket> projectTickets = _ticketRepo.GetList(t => t.ProjectId == projectId).ToList();
+            foreach(Ticket ticket in projectTickets)//to query submitters from the database
+            {
+                ApplicationUser submitter = await _userManager.FindByIdAsync(ticket.SubmitterId);
+            }
+            return View(projectTickets);
         }
 
         //https://localhost:7045/ticket/createTicket
@@ -170,7 +176,10 @@ namespace BugTracker.Controllers
 
         public async Task<IActionResult> TicketDetails(int ticketId)
         {
-            return View(_ticketRepo.Get(ticketId));
+            Ticket ticket = _ticketRepo.Get(ticketId);
+            Project project = _projectRepo.Get(ticket.ProjectId);
+            await _userManager.FindByIdAsync(ticket.SubmitterId);
+            return View(ticket);
         }
     }
 }

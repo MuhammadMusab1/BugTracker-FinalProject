@@ -71,13 +71,13 @@
                 @Html.DisplayFor(modelItem => item.Type)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Project.Id)
+                @Html.DisplayFor(modelItem => item.Project.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Developer.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Submitter.Id)
+                @Html.DisplayFor(modelItem => item.Submitter.UserName)
             </td>
             <td>
                 <a asp-action="EditTicket" asp-route-ticketId="@item.Id">Edit</a> |
