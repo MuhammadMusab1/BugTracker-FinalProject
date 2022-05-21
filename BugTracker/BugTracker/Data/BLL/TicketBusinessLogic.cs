@@ -107,5 +107,19 @@ namespace BugTracker.Data.BLL
                 return ticket;
             }
         }
+        public async Task<Ticket> AssignDeveloperToTicketBL(int? ticketId, string? developerId)
+        {
+            ApplicationUser developer = await UserManager.FindByIdAsync(developerId);
+            List<Ticket> assignTicketsOfDeveloper = TicketRepo.GetList(ticket => ticket.DeveloperId == developerId).ToList();
+            Ticket ticketToAssign = TicketRepo.Get(ticket => ticket.Id == ticketId);
+            //set up relationships
+            ticketToAssign.DeveloperId = developer.Id;
+            ticketToAssign.Developer = developer;
+            developer.AssignedTickets.Add(ticketToAssign);
+            //save to database
+            await UserManager.UpdateAsync(developer); //acts like _db.SaveChanges()
+
+            return ticketToAssign;
+        }
     }
 }

@@ -45,11 +45,12 @@ namespace BugTracker.Controllers
         public async Task<IActionResult> ProjectTickets(int projectId)
         {
             ViewBag.ProjectId = projectId;
-            Project project = _projectRepo.Get(projectId);
             List<Ticket> projectTickets = _ticketRepo.GetList(t => t.ProjectId == projectId).ToList();
-            foreach(Ticket ticket in projectTickets)//to query submitters from the database
+            Project project = _projectRepo.Get(projectId);
+            foreach(Ticket ticket in projectTickets)//to query submitters and developer from the database
             {
                 ApplicationUser submitter = await _userManager.FindByIdAsync(ticket.SubmitterId);
+                ApplicationUser developer = await _userManager.FindByIdAsync(ticket.DeveloperId);
             }
             return View(projectTickets);
         }
@@ -162,11 +163,40 @@ namespace BugTracker.Controllers
 
         //https://localhost:7045/ticket/assignDeveloperToTicket
         [HttpGet]
-        public async Task<IActionResult> AssignDeveloperToTicket() //parameter: int? ticketId
+        public async Task<IActionResult> AssignDeveloperToTicket(int? ticketId) //parameter: int? ticketId
         {
-            List<ApplicationUser> developers = new List<ApplicationUser>(await _userManager.GetUsersInRoleAsync("Developer"));
-            ViewBag.developerList = new SelectList(developers, "Id", "UserName");
-            return View();
+            if(ticketId != null)
+            {
+                List<ApplicationUser> developers = new List<ApplicationUser>(await _userManager.GetUsersInRoleAsync("Developer"));
+                ViewBag.developerList = new SelectList(developers, "Id", "UserName");
+                ViewBag.ticketId = ticketId;
+                return View();
+            }
+            else
+            {
+                return NotFound("ticketId is null at AssignDeveloperToTicket get method");
+            }
+        }
+        //https://localhost:7045/ticket/assignDeveloperToTicket?ticketId=5&&developerId=234
+        [HttpPost]
+        public async Task<IActionResult> AssignDeveloperToTicket(int? ticketId, string? developerId)
+        {
+            if(ticketId != null && developerId != null)
+            {
+                try
+                {
+                    await ticketBL.AssignDeveloperToTicketBL(ticketId, developerId);
+                    return RedirectToAction("TicketDetails", new {ticketId = ticketId});
+                }
+                catch (Exception ex)
+                {
+                    return NotFound("ticket notFound at AssignDeveloperToTicket post method");
+                }
+            }
+            else
+            {
+                return BadRequest("ticketId or developerId is missing at AssignDeveloperToTicket post method");
+            }
         }
 
         public async Task<IActionResult> DeleteTicket(int ticketId)
@@ -177,8 +207,10 @@ namespace BugTracker.Controllers
         public async Task<IActionResult> TicketDetails(int ticketId)
         {
             Ticket ticket = _ticketRepo.Get(ticketId);
-            Project project = _projectRepo.Get(ticket.ProjectId);
+            //Query things from Database (works like include)
+            _projectRepo.Get(ticket.ProjectId);
             await _userManager.FindByIdAsync(ticket.SubmitterId);
+            await _userManager.FindByIdAsync(ticket.DeveloperId);
             return View(ticket);
         }
     }
