@@ -218,7 +218,20 @@ namespace BugTracker.Controllers
             _projectRepo.Get(ticket.ProjectId);
             await _userManager.FindByIdAsync(ticket.SubmitterId);
             await _userManager.FindByIdAsync(ticket.DeveloperId);
-            return View(ticket);
+            ViewBag.CommentList = _db.TicketComment.Include(s => s.User).Where(c => c.TicketId == ticketId).ToList();
+            //ViewBag.CommentList = _ticketCommentRepo.GetList(tc => tc.TicketId == ticketId).ToList();
+            return View(_ticketRepo.Get(ticketId));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TicketDetails(int ticketId, string comment)
+        {
+            commentattachmentBL.AddCommentToTicket(ticketId, comment);
+            _ticketCommentRepo.Save();
+
+            ViewBag.CommentList = _db.TicketComment.Include(s => s.User).Where(c => c.TicketId == ticketId).ToList();
+            //ViewBag.CommentList = _ticketCommentRepo.GetList(tc => tc.TicketId == ticketId);
+            return View(_ticketRepo.Get(ticketId));
         }
     }
 }
