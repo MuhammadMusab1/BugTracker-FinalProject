@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
 
 namespace BugTracker.Controllers
 {
@@ -44,10 +45,13 @@ namespace BugTracker.Controllers
             return View();
         }
 
-        public async Task<IActionResult> ProjectTickets(int projectId)
+        public async Task<IActionResult> ProjectTickets(int projectId, int? page)
         {
+            //Pages for pagination
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
             ViewBag.ProjectId = projectId;
-            List<Ticket> projectTickets = _ticketRepo.GetList(t => t.ProjectId == projectId).ToList();
+            IPagedList<Ticket> projectTickets = _ticketRepo.GetList(t => t.ProjectId == projectId).ToPagedList(pageNumber, pageSize);
             Project project = _projectRepo.Get(projectId);
             foreach(Ticket ticket in projectTickets)//to query submitters and developer from the database
             {
