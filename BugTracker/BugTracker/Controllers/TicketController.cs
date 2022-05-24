@@ -213,6 +213,15 @@ namespace BugTracker.Controllers
 
         public async Task<IActionResult> TicketDetails(int ticketId)
         {
+            ApplicationUser currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            if (await _userManager.IsInRoleAsync(currentUser, "Admin"))
+            {
+                ViewBag.IsAdmin = true;
+            }
+            else
+            {
+                ViewBag.IsAdmin = false;
+            }
             Ticket ticket = _ticketRepo.Get(ticketId);
             //Query things from Database (works like include)
             _projectRepo.Get(ticket.ProjectId);
@@ -239,6 +248,14 @@ namespace BugTracker.Controllers
                 await _userManager.FindByIdAsync(ticketComment.UserId);
             }
             ViewBag.CommentList = CommentList;
+            if(await _userManager.IsInRoleAsync(userCommenting, "Admin"))
+            {
+                ViewBag.IsAdmin = true;
+            }
+            else
+            {
+                ViewBag.IsAdmin = false;
+            }
             Ticket ticket = _ticketRepo.Get(ticketId);
             _projectRepo.Get(ticket.ProjectId); //query the project
             return View(ticket);

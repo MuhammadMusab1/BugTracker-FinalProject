@@ -97,9 +97,17 @@
 <div>
     @foreach (TicketComment comment in ViewBag.CommentList)
     {
-        <h3>@comment.User.UserName</h3>
-        <h4>@comment.Comment</h4>
-        <h5>@comment.CreatedDate.ToShortDateString()</h5>
-        <br />
+        <div style="display: flex;justify-content: space-evenly;border-color: black;border-style: solid;border-radius: 2rem;background-color: aliceblue;padding: 2rem;margin-bottom: 2rem;">
+             <div>
+                 <div style="color: brown;font-weight: bold;">@comment.Comment</div>
+                 <div>Date: @comment.CreatedDate.ToShortDateString()</div>
+                 <div>@comment.User.UserName</div>
+
+             </div>
+             @if(ViewBag.IsAdmin) 
+               {
+                <a asp-action="DeleteComment" asp-route-commentId=@comment.Id>Delete</a>
+               }
+        </div>
     }
 </div>
