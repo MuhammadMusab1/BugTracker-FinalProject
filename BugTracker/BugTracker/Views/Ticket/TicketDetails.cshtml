@@ -56,25 +56,33 @@
             @Html.DisplayNameFor(model => model.Project)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Project.Id)
+            @Html.DisplayFor(model => model.Project.Name)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Developer)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Developer.Id)
+            @if(Model.DeveloperId == null)
+             {
+               <div style="font-weight: bold;color: red;">Unassign</div>
+             }
+             else
+             {
+               <div style="font-weight: bold;color: purple;"> @Model.Developer.UserName</div>
+             }
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Submitter)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Submitter.Id)
+            @Html.DisplayFor(model => model.Submitter.UserName)
         </dd>
     </dl>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-controller="Ticket" asp-action="ProjectTickets" asp-route-projectId="@Model.ProjectId">Back to Project Tickets List</a>
+    <a asp-controller="Ticket" asp-action="ProjectTickets" asp-route-projectId="@Model.ProjectId">Back to Project Tickets List</a> | 
+    <a asp-action="AssignDeveloperToTicket" asp-controller="Ticket" asp-route-ticketId="@Model.Id">Assign Developer</a>
 </div>
 
 <br />

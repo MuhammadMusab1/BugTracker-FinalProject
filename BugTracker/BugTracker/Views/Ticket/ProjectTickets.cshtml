@@ -1,4 +1,5 @@
-﻿@model IEnumerable<BugTracker.Models.Ticket>
+﻿@using X.PagedList.Mvc.Core;
+@model X.PagedList.IPagedList<BugTracker.Models.Ticket>
 
 @{
     ViewData["Title"] = "Project Tickets";
@@ -14,34 +15,16 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                Title
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                Project
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
+                Developer
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UpdatedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Priority)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Type)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Project)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Developer)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Submitter)
+                Submitter
             </th>
             <th></th>
         </tr>
@@ -53,31 +36,20 @@
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Description)
+                @Html.DisplayFor(modelItem => item.Project.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedDate)
+                    @if(item.DeveloperId == null)
+                    {
+                        <div style="font-weight: bold;color: red;">Unassign</div>
+                    }
+                    else
+                    {
+                        <div style="font-weight: bold;color: purple;"> @item.Developer.UserName</div>
+                    }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UpdatedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Priority)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Type)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Project.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Developer.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Submitter.Id)
+                @Html.DisplayFor(modelItem => item.Submitter.UserName)
             </td>
             <td>
                 <a asp-action="EditTicket" asp-route-ticketId="@item.Id">Edit</a> |
@@ -88,3 +60,15 @@
 }
     </tbody>
 </table>
+
+<nav aria-label="Ticket navigation">
+    @Html.PagedListPager(Model, page => Url.Action("ProjectTickets", new {page = page, projectId = ViewBag.ProjectId}), 
+    
+    new X.PagedList.Web.Common.PagedListRenderOptions 
+    {
+        DisplayItemSliceAndTotal = false,
+        ContainerDivClasses = new[] {"navigation"},
+        LiElementClasses = new[] {"page-item"},
+        PageClasses = new[] {"page-link"},
+    })
+</nav>
