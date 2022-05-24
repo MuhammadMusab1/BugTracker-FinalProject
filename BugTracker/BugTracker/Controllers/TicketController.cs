@@ -49,10 +49,10 @@ namespace BugTracker.Controllers
 
         //https://localhost:7045/ticket/createTicket
         [HttpGet]
-        public IActionResult CreateTicket(int projectId)
+        public async Task<IActionResult> CreateTicket(int projectId)
         {
             string userName = User.Identity.Name;
-            ViewBag.SubmitterId = _userManager.FindByEmailAsync(userName);
+            ViewBag.SubmitterId = await _userManager.FindByEmailAsync(userName);
             ViewBag.ProjectId = projectId;
             return View();
         }
@@ -160,6 +160,19 @@ namespace BugTracker.Controllers
 
         public async Task<IActionResult> TicketDetails(int ticketId)
         {
+            ViewBag.CommentList = _db.TicketComment.Include(s => s.User).Where(c => c.TicketId == ticketId).ToList();
+            //ViewBag.CommentList = _ticketCommentRepo.GetList(tc => tc.TicketId == ticketId).ToList();
+            return View(_ticketRepo.Get(ticketId));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TicketDetails(int ticketId, string comment)
+        {
+            commentattachmentBL.AddCommentToTicket(ticketId, comment);
+            _ticketCommentRepo.Save();
+
+            ViewBag.CommentList = _db.TicketComment.Include(s => s.User).Where(c => c.TicketId == ticketId).ToList();
+            //ViewBag.CommentList = _ticketCommentRepo.GetList(tc => tc.TicketId == ticketId);
             return View(_ticketRepo.Get(ticketId));
         }
     }
