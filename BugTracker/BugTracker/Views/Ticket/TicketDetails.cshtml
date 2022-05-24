@@ -76,3 +76,22 @@
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-controller="Ticket" asp-action="ProjectTickets" asp-route-projectId="@Model.ProjectId">Back to Project Tickets List</a>
 </div>
+
+<br />
+
+<form asp-controller="Ticket" asp-action="TicketDetails" asp-route-ticketId="@Model.Id" method="post">
+    <input placeholder="Your Comment" name="comment" />
+    <button type="submit">Submit</button>
+</form>
+
+<br />
+
+<div>
+    @foreach (TicketComment comment in ViewBag.CommentList)
+    {
+        <h3>@comment.User.UserName</h3>
+        <h4>@comment.Comment</h4>
+        <h5>@comment.CreatedDate.ToShortDateString()</h5>
+        <br />
+    }
+</div>
