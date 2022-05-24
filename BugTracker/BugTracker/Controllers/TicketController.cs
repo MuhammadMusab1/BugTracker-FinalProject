@@ -218,20 +218,30 @@ namespace BugTracker.Controllers
             _projectRepo.Get(ticket.ProjectId);
             await _userManager.FindByIdAsync(ticket.SubmitterId);
             await _userManager.FindByIdAsync(ticket.DeveloperId);
-            ViewBag.CommentList = _db.TicketComment.Include(s => s.User).Where(c => c.TicketId == ticketId).ToList();
-            //ViewBag.CommentList = _ticketCommentRepo.GetList(tc => tc.TicketId == ticketId).ToList();
+            List<TicketComment> CommentList = _ticketCommentRepo.GetList(ticketComment => ticketComment.TicketId == ticketId).ToList();
+            foreach (TicketComment ticketComment in CommentList)
+            {
+                await _userManager.FindByIdAsync(ticketComment.UserId);
+            }
+            ViewBag.CommentList = CommentList;
             return View(_ticketRepo.Get(ticketId));
         }
 
         [HttpPost]
         public async Task<IActionResult> TicketDetails(int ticketId, string comment)
         {
-            commentattachmentBL.AddCommentToTicket(ticketId, comment);
+            ApplicationUser userCommenting = await _userManager.FindByNameAsync(User.Identity.Name);
+            commentattachmentBL.AddCommentToTicket(ticketId, comment, userCommenting);
             _ticketCommentRepo.Save();
-
-            ViewBag.CommentList = _db.TicketComment.Include(s => s.User).Where(c => c.TicketId == ticketId).ToList();
-            //ViewBag.CommentList = _ticketCommentRepo.GetList(tc => tc.TicketId == ticketId);
-            return View(_ticketRepo.Get(ticketId));
+            List<TicketComment> CommentList = _ticketCommentRepo.GetList(ticketComment => ticketComment.TicketId == ticketId).ToList();
+            foreach(TicketComment ticketComment in CommentList)
+            {
+                await _userManager.FindByIdAsync(ticketComment.UserId);
+            }
+            ViewBag.CommentList = CommentList;
+            Ticket ticket = _ticketRepo.Get(ticketId);
+            _projectRepo.Get(ticket.ProjectId); //query the project
+            return View(ticket);
         }
     }
 }
