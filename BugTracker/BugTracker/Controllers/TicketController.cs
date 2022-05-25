@@ -62,6 +62,7 @@ namespace BugTracker.Controllers
             }
             return View(projectTickets);
         }
+
         [Authorize(Roles = "Submitter")]
         //https://localhost:7045/ticket/createTicket
         [HttpGet]
@@ -126,6 +127,7 @@ namespace BugTracker.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Developer, Project Manager")]
         //https://localhost:7045/ticket/updateTicket?ticketId=5
         [HttpGet]
         public IActionResult UpdateTicket(int? ticketId)
@@ -147,6 +149,7 @@ namespace BugTracker.Controllers
                 return BadRequest("ticketId is null at UpdateTicket get method");
             }
         }
+
         [HttpPost]
         public async Task<IActionResult> UpdateTicket(int? ticketId, Ticket updatedTicket)
         {
@@ -169,6 +172,7 @@ namespace BugTracker.Controllers
             }
         }
 
+        [Authorize(Roles = "Project Manager")]
         //https://localhost:7045/ticket/assignDeveloperToTicket
         [HttpGet]
         public async Task<IActionResult> AssignDeveloperToTicket(int? ticketId) //parameter: int? ticketId
@@ -185,6 +189,7 @@ namespace BugTracker.Controllers
                 return NotFound("ticketId is null at AssignDeveloperToTicket get method");
             }
         }
+
         //https://localhost:7045/ticket/assignDeveloperToTicket?ticketId=5&&developerId=234
         [HttpPost]
         public async Task<IActionResult> AssignDeveloperToTicket(int? ticketId, string? developerId)
@@ -238,7 +243,7 @@ namespace BugTracker.Controllers
             return View(_ticketRepo.Get(ticketId));
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult AllTicketSort(string? filterId)
         {

@@ -26,6 +26,7 @@ namespace BugTracker.Controllers
             projBl = new ProjectBusinessLogic(new ProjectRepository(_db), userManager);          
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AllProjects()
         {
             List<Project> allProjects = _projectRepository.GetAll().ToList();
@@ -46,12 +47,13 @@ namespace BugTracker.Controllers
             return View();
         }
         
-        [Authorize(Roles = "Project Manager, Admin")]
+        [Authorize(Roles = "Project Manager")]
         public IActionResult ProjManagerDashboard()
         {
             return View();
         }
 
+        [Authorize(Roles = "Project Manager")]
         public async Task<IActionResult> ListProjectsPM()
         {
             ApplicationUser user = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -66,7 +68,6 @@ namespace BugTracker.Controllers
             return View();
         }
 
-        [Authorize(Roles ="Admin, Project Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateProject(string name, string description)
         {
@@ -104,6 +105,7 @@ namespace BugTracker.Controllers
             Project project = projBl.ProjectRepo.Get(projId);
             return View(project);
         }
+
         [HttpPost]
         public IActionResult UpdateProject(int projId, string? name, string? description)
         {
@@ -122,14 +124,14 @@ namespace BugTracker.Controllers
             }
         }
 
+        [Authorize(Roles = "Project Manager, Admin")]
         public async Task<IActionResult> AssignDeveloperToProject()
         {
             ViewBag.DeveloperList = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName");
             ViewBag.ProjectList = new SelectList(_projectRepository.GetAll(), "Id", "Name");
             return View();
         }
-
-        [Authorize(Roles = "Project Manager, Admin")]
+     
         [HttpPost]
         public async Task<IActionResult> AssignDeveloperToProject(int projId, string devId)
         {

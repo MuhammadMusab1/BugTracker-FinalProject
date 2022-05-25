@@ -30,11 +30,13 @@ namespace BugTracker.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult AdminDashboard()
         {
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult AssignRoleToUser()
         {
@@ -42,6 +44,7 @@ namespace BugTracker.Controllers
             ViewBag.rolesList = new SelectList(_db.Roles.ToList(), "Name", "Name");
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> AssignRoleToUser(string? userId, string? role)
         {
@@ -87,6 +90,8 @@ namespace BugTracker.Controllers
                 return BadRequest("role or userId is null at AssignRoleToUser post method");
             }
         }
+
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult UnassignUserFromRole()
         {
@@ -94,6 +99,7 @@ namespace BugTracker.Controllers
             ViewBag.rolesList = new SelectList(_db.Roles.ToList(), "Name", "Name");
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> UnassignUserFromRole(string userId, string role)
         {
@@ -140,6 +146,7 @@ namespace BugTracker.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AssignProjectToPM()
         {
             ViewBag.Projects = new SelectList(_projectRepository.GetAll(), "Id", "Name");
@@ -161,8 +168,7 @@ namespace BugTracker.Controllers
             catch
             {
                 ViewBag.Message = "Could not assign Project Manager to Project";
-            }
-            
+            }         
             return View();
         }
     }

@@ -4,7 +4,7 @@
     ViewData["Title"] = "UpdateTicket";
 }
 
-<h1>UpdateTicket</h1>
+<h1>Update Ticket</h1>
 
 <h4>Ticket</h4>
 <hr />
@@ -50,7 +50,9 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-controller="Ticket" asp-action="AllTicketSort">Back to All Tickets</a>
+    <a asp-controller="Ticket" asp-action="ListDeveloperTickets">Back to Developer's Tickets</a>
+    <a asp-controller="Ticket" asp-action="ProjectTickets">Back Project's List of Tickets</a>
 </div>
 
 @section Scripts {
