@@ -153,10 +153,6 @@ namespace BugTracker.Controllers
             }
         }
 
-        public async Task<IActionResult> DeleteTicket(int ticketId)
-        {
-            return View();
-        }
 
         public async Task<IActionResult> TicketDetails(int ticketId)
         {

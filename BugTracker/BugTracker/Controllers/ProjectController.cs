@@ -23,7 +23,7 @@ namespace BugTracker.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
             _projectRepository = new ProjectRepository(_db);
-            projBl = new ProjectBusinessLogic(new ProjectRepository(_db));
+            projBl = new ProjectBusinessLogic(new ProjectRepository(_db), userManager);
             
         }
 
@@ -41,6 +41,7 @@ namespace BugTracker.Controllers
         {
             return View();
         }
+
         [Authorize(Roles = "Project Manager")]
         public IActionResult ProjManagerDashboard()
         {
@@ -49,11 +50,11 @@ namespace BugTracker.Controllers
 
         [Authorize(Roles = "Admin, Project Manager")]
         [HttpGet]
-        public IActionResult CreateProject()
-        
+        public IActionResult CreateProject()   
         {
             return View();
         }
+
         [Authorize(Roles ="Admin, Project Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateProject(string name, string description)
@@ -108,6 +109,31 @@ namespace BugTracker.Controllers
             {
                 return NotFound("Something went wrong, please try again");
             }
+        }
+
+        public async Task<IActionResult> AssignDeveloperToProject()
+        {
+            ViewBag.DeveloperList = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName");
+            ViewBag.ProjectList = new SelectList(_projectRepository.GetAll(), "Id", "Name");
+            return View();
+        }
+
+        [Authorize(Roles = "Project Manager, Admin")]
+        [HttpPost]
+        public async Task<IActionResult> AssignDeveloperToProject(int projId, string devId)
+        {
+            ViewBag.DeveloperList = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName");
+            ViewBag.ProjectList = new SelectList(_projectRepository.GetAll(), "Id", "Name");
+            try
+            {
+                projBl.AddDeveloperToProject(devId, projId);
+                ViewBag.Message = "Successfully assigned developer to project.";
+            }
+            catch
+            {
+                ViewBag.Message = "Could not assign developer.";
+            }
+            return View();
         }
     }
 }
