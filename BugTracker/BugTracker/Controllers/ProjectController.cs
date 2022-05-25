@@ -27,9 +27,14 @@ namespace BugTracker.Controllers
             
         }
 
-        public IActionResult AllProjects()
+        public async Task<IActionResult> AllProjects()
         {
-            return View(_projectRepository.GetAll());
+            List<Project> allProjects = _projectRepository.GetAll().ToList();
+            foreach(Project project in allProjects)
+            {
+                await _userManager.FindByIdAsync(project.ProjectManagerId);
+            }
+            return View(allProjects);
         }
 
         public IActionResult ProjectDetails(int projectId)
@@ -41,8 +46,8 @@ namespace BugTracker.Controllers
         {
             return View();
         }
-
-        [Authorize(Roles = "Project Manager")]
+        
+        [Authorize(Roles = "Project Manager, Admin")]
         public IActionResult ProjManagerDashboard()
         {
             return View(projBl.GetAllProjects());

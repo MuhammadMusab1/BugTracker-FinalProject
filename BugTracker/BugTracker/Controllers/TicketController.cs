@@ -4,7 +4,9 @@ using BugTracker.Data.DAL;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
 
 namespace BugTracker.Controllers
 {
@@ -17,6 +19,7 @@ namespace BugTracker.Controllers
         private TicketLogItemRepository _ticketLogItemRepo { get; set; }
         private TicketAttachmentRepository _ticketAttachmentRepo { get; set; }
         private TicketCommentRepository _ticketCommentRepo { get; set; }
+        private TicketNotificationRepository _ticketNotificationRepo { get; set; }
         private CommentAndAttachmentBusinessLogic commentattachmentBL { get; set; }
         private TicketBusinessLogic ticketBL { get; set; }
         private UserManager<ApplicationUser> _userManager { get; set; }
@@ -32,7 +35,8 @@ namespace BugTracker.Controllers
             _ticketLogItemRepo = new TicketLogItemRepository(Db);
             _ticketAttachmentRepo = new TicketAttachmentRepository(Db);
             _ticketCommentRepo = new TicketCommentRepository(Db);
-            ticketBL = new TicketBusinessLogic(_projectRepo, _ticketRepo, _ticketHistoryRepo, _ticketLogItemRepo, _userManager, _roleManager);
+            _ticketNotificationRepo = new TicketNotificationRepository(Db);
+            ticketBL = new TicketBusinessLogic(_projectRepo, _ticketRepo, _ticketHistoryRepo, _ticketLogItemRepo, _ticketNotificationRepo,_userManager, _roleManager);
             commentattachmentBL = new CommentAndAttachmentBusinessLogic(_projectRepo, _ticketRepo, _ticketAttachmentRepo, _ticketCommentRepo, _userManager);
         }
 
@@ -41,18 +45,28 @@ namespace BugTracker.Controllers
             return View();
         }
 
-        public IActionResult ProjectTickets(int projectId)
+        public async Task<IActionResult> ProjectTickets(int projectId, int? page)
         {
+            //Pages for pagination
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
             ViewBag.ProjectId = projectId;
-            return View(_ticketRepo.GetList(t => t.ProjectId == projectId));
+            IPagedList<Ticket> projectTickets = _ticketRepo.GetList(t => t.ProjectId == projectId).ToPagedList(pageNumber, pageSize);
+            Project project = _projectRepo.Get(projectId);
+            foreach(Ticket ticket in projectTickets)//to query submitters and developer from the database
+            {
+                ApplicationUser submitter = await _userManager.FindByIdAsync(ticket.SubmitterId);
+                ApplicationUser developer = await _userManager.FindByIdAsync(ticket.DeveloperId);
+            }
+            return View(projectTickets);
         }
 
         //https://localhost:7045/ticket/createTicket
         [HttpGet]
         public async Task<IActionResult> CreateTicket(int projectId)
         {
-            string userName = User.Identity.Name;
-            ViewBag.SubmitterId = await _userManager.FindByEmailAsync(userName);
+            ApplicationUser submitter = await _userManager.FindByEmailAsync(User.Identity.Name);
+            ViewBag.SubmitterId = submitter.Id;
             ViewBag.ProjectId = projectId;
             return View();
         }
@@ -105,7 +119,7 @@ namespace BugTracker.Controllers
                 project.Tickets.Add(newTicket);
                 _ticketRepo.Add(newTicket);
                 await _userManager.UpdateAsync(submitter); //since we used _userManager in this method we can't use _ticketRepo.Save()
-                return RedirectToAction("ProjectTickets", project.Id);
+                return RedirectToAction("ProjectTickets", new { projectId = project.Id });
             }
             return View();
         }
@@ -153,23 +167,81 @@ namespace BugTracker.Controllers
             }
         }
 
+        //https://localhost:7045/ticket/assignDeveloperToTicket
+        [HttpGet]
+        public async Task<IActionResult> AssignDeveloperToTicket(int? ticketId) //parameter: int? ticketId
+        {
+            if(ticketId != null)
+            {
+                List<ApplicationUser> developers = new List<ApplicationUser>(await _userManager.GetUsersInRoleAsync("Developer"));
+                ViewBag.developerList = new SelectList(developers, "Id", "UserName");
+                ViewBag.ticketId = ticketId;
+                return View();
+            }
+            else
+            {
+                return NotFound("ticketId is null at AssignDeveloperToTicket get method");
+            }
+        }
+        //https://localhost:7045/ticket/assignDeveloperToTicket?ticketId=5&&developerId=234
+        [HttpPost]
+        public async Task<IActionResult> AssignDeveloperToTicket(int? ticketId, string? developerId)
+        {
+            if(ticketId != null && developerId != null)
+            {
+                try
+                {
+                    Ticket ticket = await ticketBL.AssignDeveloperToTicketBL(ticketId, developerId);
+                    await ticketBL.SendNotificationToDeveloperWhenAssignedTicket(ticket);
+                    return RedirectToAction("TicketDetails", new {ticketId = ticketId});
+                }
+                catch (Exception ex)
+                {
+                    return NotFound("ticket notFound at AssignDeveloperToTicket post method");
+                }
+            }
+            else
+            {
+                return BadRequest("ticketId or developerId is missing at AssignDeveloperToTicket post method");
+            }
+        }
+
+        public async Task<IActionResult> DeleteTicket(int ticketId)
+        {
+            return View();
+        }
 
         public async Task<IActionResult> TicketDetails(int ticketId)
         {
-            ViewBag.CommentList = _db.TicketComment.Include(s => s.User).Where(c => c.TicketId == ticketId).ToList();
-            //ViewBag.CommentList = _ticketCommentRepo.GetList(tc => tc.TicketId == ticketId).ToList();
+            Ticket ticket = _ticketRepo.Get(ticketId);
+            //Query things from Database (works like include)
+            _projectRepo.Get(ticket.ProjectId);
+            await _userManager.FindByIdAsync(ticket.SubmitterId);
+            await _userManager.FindByIdAsync(ticket.DeveloperId);
+            List<TicketComment> CommentList = _ticketCommentRepo.GetList(ticketComment => ticketComment.TicketId == ticketId).ToList();
+            foreach (TicketComment ticketComment in CommentList)
+            {
+                await _userManager.FindByIdAsync(ticketComment.UserId);
+            }
+            ViewBag.CommentList = CommentList;
             return View(_ticketRepo.Get(ticketId));
         }
 
         [HttpPost]
         public async Task<IActionResult> TicketDetails(int ticketId, string comment)
         {
-            commentattachmentBL.AddCommentToTicket(ticketId, comment);
+            ApplicationUser userCommenting = await _userManager.FindByNameAsync(User.Identity.Name);
+            commentattachmentBL.AddCommentToTicket(ticketId, comment, userCommenting);
             _ticketCommentRepo.Save();
-
-            ViewBag.CommentList = _db.TicketComment.Include(s => s.User).Where(c => c.TicketId == ticketId).ToList();
-            //ViewBag.CommentList = _ticketCommentRepo.GetList(tc => tc.TicketId == ticketId);
-            return View(_ticketRepo.Get(ticketId));
+            List<TicketComment> CommentList = _ticketCommentRepo.GetList(ticketComment => ticketComment.TicketId == ticketId).ToList();
+            foreach(TicketComment ticketComment in CommentList)
+            {
+                await _userManager.FindByIdAsync(ticketComment.UserId);
+            }
+            ViewBag.CommentList = CommentList;
+            Ticket ticket = _ticketRepo.Get(ticketId);
+            _projectRepo.Get(ticket.ProjectId); //query the project
+            return View(ticket);
         }
     }
 }
