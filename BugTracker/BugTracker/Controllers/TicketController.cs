@@ -227,6 +227,63 @@ namespace BugTracker.Controllers
             return View(_ticketRepo.Get(ticketId));
         }
 
+
+        [HttpGet]
+        public IActionResult AllTicketSort(string? filterId)
+        {
+            ViewBag.sortList = new List<SelectListItem>
+            {
+                new SelectListItem("Title", "0"),
+                new SelectListItem("Owner", "1"),
+                new SelectListItem("Assignment", "2"),
+                new SelectListItem("Creation Time", "3"),
+                new SelectListItem("Ticket Type", "4"),
+                new SelectListItem("Priority", "5"),
+                new SelectListItem("Status", "6"),
+                new SelectListItem("Project", "7")
+            };
+
+            try
+            {
+                if (filterId == "0")
+                {
+                    return View(_ticketRepo.GetAll().OrderBy(u => u.Title));
+                }
+                if (filterId == "1")
+                {
+                    return View(_ticketRepo.GetAll().OrderBy(u => u.SubmitterId));
+                }
+                if (filterId == "2")
+                {
+                    return View(_ticketRepo.GetAll().OrderBy(u => u.DeveloperId));
+                }
+                if (filterId == "3")
+                {
+                    return View(_ticketRepo.GetAll().OrderBy(u => u.CreatedDate));
+                }
+                if (filterId == "4")
+                {
+                    return View(_ticketRepo.GetAll().OrderBy(u => u.Type));
+                }
+                if (filterId == "5")
+                {
+                    return View(_ticketRepo.GetAll().OrderBy(u => u.Priority));
+                }
+                if (filterId == "6")
+                {
+                    return View(_ticketRepo.GetAll().OrderBy(u => u.Status));
+                }
+                if (filterId == "7")
+                {
+                    return View(_ticketRepo.GetAll().OrderBy(u => u.ProjectId));
+                }
+            }
+            catch (Exception ex)
+            {
+                return NotFound("Something went wrong... Please try again");
+            }
+            return View(_ticketRepo.GetAll());  
+
         [HttpPost]
         public async Task<IActionResult> TicketDetails(int ticketId, string comment)
         {
@@ -242,6 +299,7 @@ namespace BugTracker.Controllers
             Ticket ticket = _ticketRepo.Get(ticketId);
             _projectRepo.Get(ticket.ProjectId); //query the project
             return View(ticket);
+
         }
     }
 }
