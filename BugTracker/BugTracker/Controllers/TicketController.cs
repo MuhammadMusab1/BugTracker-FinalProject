@@ -293,7 +293,8 @@ namespace BugTracker.Controllers
             {
                 return NotFound("Something went wrong... Please try again");
             }
-            return View(_ticketRepo.GetAll());  
+            return View(_ticketRepo.GetAll());
+        }
 
         [HttpPost]
         public async Task<IActionResult> TicketDetails(int ticketId, string comment)
