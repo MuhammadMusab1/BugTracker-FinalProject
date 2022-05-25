@@ -7,7 +7,7 @@
 <h1>All Projects</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="CreateProject">Create New Project</a>
 </p>
 <table class="table">
     <thead>
@@ -37,9 +37,8 @@
                 @Html.DisplayFor(modelItem => item.ProjectManager.UserName)
             </td>
             <td>
-                <a asp-action="EditProject" asp-route-projectId="@item.Id">Edit</a> |
-                <a asp-action="ProjectDetails" asp-route-projectId="@item.Id">Details</a> |
-                <a asp-action="DeleteProject" asp-route-projectId="@item.Id">Delete</a>
+                <a asp-action="UpdateProject" asp-route-projectId="@item.Id">Edit</a> |
+                <a asp-action="ProjectDetails" asp-route-projectId="@item.Id">Details</a>
             </td>
         </tr>
 }

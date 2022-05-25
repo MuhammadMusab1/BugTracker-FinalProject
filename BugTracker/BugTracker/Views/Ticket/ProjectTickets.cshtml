@@ -52,9 +52,8 @@
                 @Html.DisplayFor(modelItem => item.Submitter.UserName)
             </td>
             <td>
-                <a asp-action="EditTicket" asp-route-ticketId="@item.Id">Edit</a> |
-                <a asp-action="TicketDetails" asp-route-ticketId="@item.Id">Details</a> |
-                <a asp-action="DeleteTicket" asp-route-ticketId="@item.Id">Delete</a>
+                <a asp-action="UpdateTicket" asp-route-ticketId="@item.Id">Edit</a> |
+                <a asp-action="TicketDetails" asp-route-ticketId="@item.Id">Details</a>
             </td>
         </tr>
 }
