@@ -21,6 +21,7 @@ namespace BugTracker.Controllers
             _roleManager = roleManager;
             
         }
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -42,6 +43,7 @@ namespace BugTracker.Controllers
             await _userManager.AddToRoleAsync(guestUser, "Admin");
             return View(guestUser);
         }
+
         [HttpPost]
         public IActionResult Index(bool result)
         {
