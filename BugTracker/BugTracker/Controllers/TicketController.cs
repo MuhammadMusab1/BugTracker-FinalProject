@@ -2,6 +2,7 @@
 using BugTracker.Data.BLL;
 using BugTracker.Data.DAL;
 using BugTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -242,6 +243,12 @@ namespace BugTracker.Controllers
             Ticket ticket = _ticketRepo.Get(ticketId);
             _projectRepo.Get(ticket.ProjectId); //query the project
             return View(ticket);
+        }
+
+        [Authorize(Roles = "Developer")]
+        public IActionResult ListDeveloperTickets()
+        {
+            return View(_ticketRepo.GetList(d => d.Developer == User.Identity));
         }
     }
 }

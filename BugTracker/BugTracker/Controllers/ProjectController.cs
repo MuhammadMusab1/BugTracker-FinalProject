@@ -23,8 +23,7 @@ namespace BugTracker.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
             _projectRepository = new ProjectRepository(_db);
-            projBl = new ProjectBusinessLogic(new ProjectRepository(_db), userManager);
-            
+            projBl = new ProjectBusinessLogic(new ProjectRepository(_db), userManager);          
         }
 
         public async Task<IActionResult> AllProjects()
@@ -139,6 +138,21 @@ namespace BugTracker.Controllers
                 ViewBag.Message = "Could not assign developer.";
             }
             return View();
+        }
+
+        [Authorize(Roles = "Developer")]
+        public async Task<IActionResult> DeveloperProject()
+        {
+            ApplicationUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+            try
+            {
+                Project project = _projectRepository.Get(p => p.Id == user.ProjectAssignedId);
+                return View(project);
+            }
+            catch (Exception)
+            {
+                return View();
+            }          
         }
     }
 }
