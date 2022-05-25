@@ -1,10 +1,15 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model List<TicketNotification>
 
 <h1>Developer Dashboard</h1>
 
 <h3><a asp-controller="Ticket" asp-action="ListDeveloperTickets">List of Developer's Tickets</a></h3>
 <h3><a asp-controller="Project" asp-action="DeveloperProject">Developer's Assigned Project</a></h3>
+
+@if(Model.Any()) 
+{
+    <h3><a class="btn btn-primary" asp-action="TicketNotifications" asp-controller="Developer" asp-route-developerId ="@ViewBag.developer.Id">Notificatons (@Model.Count())</a></h3>
+}
+else 
+{
+    <div>No notifications for you!!</div>
+}

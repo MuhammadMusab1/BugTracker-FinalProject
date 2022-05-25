@@ -45,15 +45,15 @@ namespace BugTracker.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(bool result)
+        public IActionResult Index(bool re)
         {
-            if(result)
+            if(re)
             {
-                return View();
+                return View("AdminDashboard");
             }
             else
             {
-                return View("AdminDashboard");
+                return View();
             }
         }
     }

@@ -129,6 +129,7 @@ namespace BugTracker.Controllers
 
         [Authorize(Roles = "Developer, Project Manager")]
         //https://localhost:7045/ticket/updateTicket?ticketId=5
+        [Authorize(Roles ="Submitter")]
         [HttpGet]
         public IActionResult UpdateTicket(int? ticketId)
         {
