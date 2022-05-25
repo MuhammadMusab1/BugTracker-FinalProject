@@ -1,6 +1,7 @@
 ﻿using BugTracker.Data;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,32 +14,44 @@ namespace BugTracker.Controllers
         private ApplicationDbContext _db { get; set; }
         private UserManager<ApplicationUser> _userManager { get; set; }
         private RoleManager<IdentityRole> _roleManager { get; set; }
-        private RequestDelegate _requestDelegate { get; set; }
+        private SignInManager<ApplicationUser> _signInManager { get; set; }
 
 
-        public GuestController(ApplicationDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, RequestDelegate requestDelegate)
+        public GuestController(ApplicationDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager)
         {
             _db = db;
             _userManager = userManager;
             _roleManager = roleManager;
-            _requestDelegate = requestDelegate;
+            _signInManager = signInManager;
         }
 
-        //public async Task InvokeAsync(HttpContext context)
-        //{
-        //    if (!context.User.Identity.IsAuthenticated)
-        //    {
-        //        if (string.IsNullOrEmpty(context.User.FindFirstValue(ClaimTypes.Anonymous)))
-        //        {
-        //            var claim = new Claim(ClaimTypes.Anonymous, System.Guid.NewGuid().ToString());
-        //            context.User.AddIdentity(new ClaimsIdentity(new[] { claim }));
+        public async Task<IActionResult> LogIn()
+        {
+            var passwordHasher = new PasswordHasher<ApplicationUser>();
 
-        //            string scheme = Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme;
-        //            await context.SignInAsync(scheme, context.User, new AuthenticationProperties { IsPersistent = false });
-        //        }
-        //    }
-        //    await _requestDelegate(context);
-        //}
+            ApplicationUser firstUser = new ApplicationUser()
+            {
+                Email = "guest@gmail.com",
+                NormalizedEmail = "GUEST@GMAIL.COM",
+                UserName = "guest@gmail.com",
+                NormalizedUserName = "GUEST@GMAIL.COM",
+                EmailConfirmed = true,
+                ProjectsOwned = new HashSet<Project>()
+            };
+            var firstUserHashedPassword = passwordHasher.HashPassword(firstUser, "Password!1");
+            firstUser.PasswordHash = firstUserHashedPassword;
+            await _userManager.CreateAsync(firstUser);
+            await _userManager.AddToRoleAsync(firstUser, "Admin");
+
+            var result = await _signInManager.PasswordSignInAsync("guest@gmail.com", "Password!1", isPersistent: false, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Admin/AdminDashboard");
+                //NavigationManager.NavigateTo("/Admin/AdminDashboard", true);
+            }
+            return View();
+        }
 
         public IActionResult Index()
         {

@@ -58,6 +58,17 @@ namespace BugTracker.Data.BLL
             ProjectRepo.Save();
         }
 
+        public async void AssignProjToPM(int projId, string pmId)
+        {
+            Project project = ProjectRepo.Get(projId);
+            ApplicationUser user = await UserManager.FindByIdAsync(pmId);
+            project.ProjectManager = await UserManager.FindByIdAsync(pmId);
+            project.ProjectManagerId = pmId;
+            user.ProjectsOwned = ProjectRepo.GetList(p => p.ProjectManagerId == pmId);
+            user.ProjectsOwned.Add(project);
+            ProjectRepo.Save();
+        }
+
         public void AddTicketToProject(int ticketId, int projId)
         {
             Ticket ticket = TicketRepo.Get(ticketId);

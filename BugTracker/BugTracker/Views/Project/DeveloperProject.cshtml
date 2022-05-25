@@ -1,10 +1,10 @@
 ﻿@model BugTracker.Models.Project
 
 @{
-    ViewData["Title"] = "ProjectDetails";
+    ViewData["Title"] = "DeveloperProject";
 }
 
-<h1>Project Details</h1>
+<h1>Developer Project</h1>
 
 <div>
     <h4>Project</h4>
@@ -31,7 +31,5 @@
     </dl>
 </div>
 <div>
-    <a asp-action="UpdateProject" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="AllProjects">Back to List</a> |
-    <a asp-controller="Ticket" asp-action="ProjectTickets" asp-route-projectId="@Model.Id">All Project Tickets</a>
+    <a asp-action="DeveloperDashboard" asp-controller="Developer">Back to Dashboard</a>
 </div>

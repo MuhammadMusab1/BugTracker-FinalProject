@@ -1,4 +1,6 @@
 ﻿using BugTracker.Data;
+using BugTracker.Data.BLL;
+using BugTracker.Data.DAL;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,11 +15,15 @@ namespace BugTracker.Controllers
         private ApplicationDbContext _db { get; set; }
         private UserManager<ApplicationUser> _userManager { get; set; }
         private RoleManager<IdentityRole> _roleManager { get; set; }
+        private IRepository<Project> _projectRepository { get; set; }
+        private ProjectBusinessLogic projBl { get; set; }
         public AdminController(ApplicationDbContext Db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _db = Db;
             _userManager = userManager;
             _roleManager = roleManager;
+            _projectRepository = new ProjectRepository(_db);
+            projBl = new ProjectBusinessLogic(new ProjectRepository(_db), userManager);
         }
         public IActionResult Index()
         {
@@ -132,6 +138,32 @@ namespace BugTracker.Controllers
             {
                 return BadRequest("role or userId is null at AssignRoleToUser post method");
             }
+        }
+
+        public async Task<IActionResult> AssignProjectToPM()
+        {
+            ViewBag.Projects = new SelectList(_projectRepository.GetAll(), "Id", "Name");
+            ViewBag.PMs = new SelectList(await _userManager.GetUsersInRoleAsync("Project Manager"), "Id", "UserName");
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignProjectToPM(int projId, string pmId)
+        {
+            ViewBag.Projects = new SelectList(_projectRepository.GetAll(), "Id", "Name");
+            ViewBag.PMs = new SelectList(await _userManager.GetUsersInRoleAsync("Project Manager"), "Id", "UserName");
+
+            try
+            {
+                projBl.AssignProjToPM(projId, pmId);
+                ViewBag.Message = "Successfully added Project Manager to Project";
+            }
+            catch
+            {
+                ViewBag.Message = "Could not assign Project Manager to Project";
+            }
+            
+            return View();
         }
     }
 }
