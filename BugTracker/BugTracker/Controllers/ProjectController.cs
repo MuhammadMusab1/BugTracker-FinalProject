@@ -52,10 +52,11 @@ namespace BugTracker.Controllers
             return View();
         }
 
-        public IActionResult ListProjectsPM()
+        public async Task<IActionResult> ListProjectsPM()
         {
-            //List<Project> PMprojects = _projectRepository.GetList()
-            return View();
+            ApplicationUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+            List<Project> PMprojects = _projectRepository.GetList(p => p.ProjectManagerId == user.Id).ToList();
+            return View(PMprojects);
         }
 
         [Authorize(Roles = "Admin, Project Manager")]

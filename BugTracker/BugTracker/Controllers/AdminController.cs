@@ -1,4 +1,5 @@
 ﻿using BugTracker.Data;
+using BugTracker.Data.BLL;
 using BugTracker.Data.DAL;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -15,12 +16,14 @@ namespace BugTracker.Controllers
         private UserManager<ApplicationUser> _userManager { get; set; }
         private RoleManager<IdentityRole> _roleManager { get; set; }
         private IRepository<Project> _projectRepository { get; set; }
+        private ProjectBusinessLogic projBl { get; set; }
         public AdminController(ApplicationDbContext Db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _db = Db;
             _userManager = userManager;
             _roleManager = roleManager;
             _projectRepository = new ProjectRepository(_db);
+            projBl = new ProjectBusinessLogic(new ProjectRepository(_db), userManager);
         }
         public IActionResult Index()
         {
@@ -152,9 +155,7 @@ namespace BugTracker.Controllers
 
             try
             {
-                Project project = _projectRepository.Get(projId);
-                project.ProjectManager = await _userManager.FindByIdAsync(pmId);
-                project.ProjectManagerId = pmId;
+                projBl.AssignProjToPM(projId, pmId);
                 ViewBag.Message = "Successfully added Project Manager to Project";
             }
             catch
