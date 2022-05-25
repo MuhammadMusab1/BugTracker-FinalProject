@@ -17,6 +17,12 @@ namespace BugTracker.Data.BLL
             ProjectRepo = repoArg;
         }
 
+        public ProjectBusinessLogic(IRepository<Project> repoArg, UserManager<ApplicationUser> userManager)
+        {
+            ProjectRepo = repoArg;
+            UserManager = userManager;
+        }
+
         public ProjectBusinessLogic(IRepository<Project> projRepo, IRepository<Ticket> ticketRepo, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             ProjectRepo = projRepo;

@@ -22,7 +22,7 @@ namespace BugTracker.Data.BLL
             UserManager = userManager;
         }
 
-        public void AddCommentToTicket(int ticketId, string comment)
+        public void AddCommentToTicket(int ticketId, string comment, ApplicationUser userCommenting)
         {
             Ticket ticket = TicketRepo.Get(ticketId);
             TicketComment ticketComment = new TicketComment()
@@ -31,8 +31,8 @@ namespace BugTracker.Data.BLL
                 CreatedDate = DateTime.Now,
                 Ticket = ticket,
                 TicketId = ticketId,
-                User = ticket.Submitter,
-                UserId = ticket.SubmitterId
+                User = userCommenting,
+                UserId = userCommenting.Id,
             };
             TicketCommentRepo.Add(ticketComment);
         }
