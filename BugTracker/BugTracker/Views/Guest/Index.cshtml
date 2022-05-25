@@ -5,14 +5,12 @@
 @model ApplicationUser
 @{
     var signInManager = SignInManager;
-    //await signInManager.SignInAsync(Model,false,    )
-
     var result = await signInManager.PasswordSignInAsync(Model.Email, "Password!1", isPersistent: false, lockoutOnFailure: false);
-    bool re = result.Succeeded;
+    string re = result.Succeeded ? "true" : "false";
 }
 
  <form asp-controller="Guest" asp-action="Index" method="post" id="guestId">
-    <input type="hidden" name="result" value="@result"/>
+    <input type="hidden" name="re" value="@re"/>
 </form>
 
 <script type="text/javascript">document.forms["guestId"].submit();
