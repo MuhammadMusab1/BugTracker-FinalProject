@@ -2,6 +2,7 @@
 using BugTracker.Data.BLL;
 using BugTracker.Data.DAL;
 using BugTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,6 +11,7 @@ using X.PagedList;
 
 namespace BugTracker.Controllers
 {
+    [Authorize]
     public class TicketController : Controller
     {
         private ApplicationDbContext _db { get; set; }
@@ -60,7 +62,7 @@ namespace BugTracker.Controllers
             }
             return View(projectTickets);
         }
-
+        [Authorize(Roles = "Submitter")]
         //https://localhost:7045/ticket/createTicket
         [HttpGet]
         public async Task<IActionResult> CreateTicket(int projectId)
