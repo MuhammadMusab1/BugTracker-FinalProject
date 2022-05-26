@@ -1,0 +1,69 @@
+﻿@model IEnumerable<BugTracker.Models.TicketLogItem>
+
+@{
+    ViewData["Title"] = "GetTicketLogItemToShowTicketHistory";
+}
+
+<h1>Ticket History</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.OldTitle)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OldType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OldPriority)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OldStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OldDescription)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.OldTitle)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OldType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OldPriority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OldStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OldDescription)
+            </td>
+            <td>
+                <a asp-action="TicketDetails" asp-route-ticketId="@item.TicketHistory.TicketId">Details</a> |
+                <a asp-action="UpdateTicket" asp-route-ticketId="@item.TicketHistory.TicketId">Update</a> |
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+@if(ViewBag.IsAdmin)
+{
+<div>
+     <a class="btn btn-primary" asp-action="DeveloperDashboard" asp-controller="Developer">My Developer Dashboard</a> |
+     <a class="btn btn-primary" asp-action="AdminDashboard" asp-controller="Admin">My Admin Dashboard</a>
+</div>
+}
+else 
+{
+<div>
+     <a class="btn btn-primary" asp-action="DeveloperDashboard" asp-controller="Developer">Developer Dashboard</a>
+</div>
+}
+

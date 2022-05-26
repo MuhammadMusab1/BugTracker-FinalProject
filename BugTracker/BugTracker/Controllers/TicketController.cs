@@ -543,9 +543,54 @@ namespace BugTracker.Controllers
         }
 
         [Authorize(Roles = "Developer")]
-        public IActionResult ListDeveloperTickets()
+        public async Task<IActionResult> ListDeveloperTickets()
         {
-            return View(_ticketRepo.GetList(d => d.Developer == User.Identity));
+            ApplicationUser currentLoggedIndeveloper = await _userManager.FindByNameAsync(User.Identity.Name);
+            List<Ticket> ticketsAssignedToDeveloper = _ticketRepo.GetList(ticket => ticket.DeveloperId == currentLoggedIndeveloper.Id).ToList();
+            foreach(Ticket ticket in ticketsAssignedToDeveloper)
+            {
+                _projectRepo.Get(ticket.ProjectId);
+            }
+            return View(ticketsAssignedToDeveloper);
+        }
+        [Authorize(Roles = "Developer")]
+        public async Task<IActionResult> GetTicketLogItemToShowTicketHistory(int? ticketId)
+        {
+            if (ticketId != null)
+            {
+                try
+                {
+                    List<TicketLogItem> ticketLogs = new List<TicketLogItem>();
+                    List<TicketLogItem> allTicketLogs = _ticketLogItemRepo.GetAll().ToList();
+                    foreach(TicketLogItem ticketLogItem in allTicketLogs)
+                    {
+                        _ticketHistoryRepo.Get(ticketLogItem.TicketHistoryId);
+                        if(ticketLogItem.TicketHistory.TicketId == ticketId)
+                        {
+                            ticketLogs.Add(ticketLogItem);
+                        }
+                    }
+                    ticketLogs = ticketLogs.OrderByDescending(ticketLog => ticketLog.TicketHistory.ChangedDate).ToList();
+                    ApplicationUser userLoggedIn = await _userManager.FindByNameAsync(User.Identity.Name);
+                    if (await _userManager.IsInRoleAsync(userLoggedIn, "Admin"))
+                    {
+                        ViewBag.IsAdmin = true;
+                    }
+                    else
+                    {
+                        ViewBag.IsAdmin = false;
+                    }
+                    return View(ticketLogs);
+                }
+                catch(Exception ex)
+                {
+                    return NotFound("Exception: Ticket Not Found at GetTicketLogItemToShowTicketHistory get method");
+                }
+            }
+            else
+            {
+                return View("ticketId is null at GetTicketLogItemToShowTicketHistory get method");
+            }
         }
     }
 }
