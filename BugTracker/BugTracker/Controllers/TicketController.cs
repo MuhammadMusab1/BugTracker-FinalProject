@@ -160,7 +160,7 @@ namespace BugTracker.Controllers
                 {
                     ApplicationUser userUpdatingTheTicket = await _userManager.FindByEmailAsync(User.Identity.Name);
                     Ticket ticket = await ticketBL.UpdateTicketWithTicketHistoryAndTicketLog(ticketId, updatedTicket, userUpdatingTheTicket);
-                    return View();
+                    return RedirectToAction("TicketDetails", new {ticketId = ticket.Id});
                 }
                 catch(Exception ex)
                 {
@@ -246,8 +246,11 @@ namespace BugTracker.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public IActionResult AllTicketSort(string? filterId)
+        public async Task<IActionResult> AllTicketSort(string? filterId, int? page)
         {
+            //Pages for pagination
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
             ViewBag.sortList = new List<SelectListItem>
             {
                 new SelectListItem("Title", "0"),
@@ -259,49 +262,260 @@ namespace BugTracker.Controllers
                 new SelectListItem("Status", "6"),
                 new SelectListItem("Project", "7")
             };
-
+            IPagedList<Ticket> allTickets;
             try
             {
                 if (filterId == "0")
                 {
-                    return View(_ticketRepo.GetAll().OrderBy(u => u.Title));
-                }
-                if (filterId == "1")
+                    return RedirectToAction("SortByTitle");
+                } else if (filterId == "1")
                 {
-                    return View(_ticketRepo.GetAll().OrderBy(u => u.SubmitterId));
+                    return RedirectToAction("SortBySubmitter");
                 }
-                if (filterId == "2")
+                else if (filterId == "2")
                 {
-                    return View(_ticketRepo.GetAll().OrderBy(u => u.DeveloperId));
+                    return RedirectToAction("SortByDeveloper");
                 }
-                if (filterId == "3")
+                else if (filterId == "3")
                 {
-                    return View(_ticketRepo.GetAll().OrderBy(u => u.CreatedDate));
+                    return RedirectToAction("SortByCreateDate");
+                } 
+                else if (filterId == "4")
+                {
+                    return RedirectToAction("SortByTicketType");
                 }
-                if (filterId == "4")
+                else if (filterId == "5")
                 {
-                    return View(_ticketRepo.GetAll().OrderBy(u => u.Type));
+                    return RedirectToAction("SortByPriority");
                 }
-                if (filterId == "5")
+                else if (filterId == "6")
                 {
-                    return View(_ticketRepo.GetAll().OrderBy(u => u.Priority));
+                    return RedirectToAction("SortByTicketStatus");
                 }
-                if (filterId == "6")
+                else if (filterId == "7")
                 {
-                    return View(_ticketRepo.GetAll().OrderBy(u => u.Status));
-                }
-                if (filterId == "7")
+                    return RedirectToAction("SortByTicketProject");
+                } 
+                else
                 {
-                    return View(_ticketRepo.GetAll().OrderBy(u => u.ProjectId));
+                    allTickets = _ticketRepo.GetAll().ToPagedList(pageNumber, pageSize);
+                    foreach (Ticket ticket in allTickets) //quering data for ticket(Like include)
+                    {
+                        await _userManager.FindByIdAsync(ticket.DeveloperId);
+                        await _userManager.FindByIdAsync(ticket.SubmitterId);
+                        _projectRepo.Get(ticket.ProjectId);
+                    };
+                    ViewBag.actionName = "AllTicketSort";
+                    return View(allTickets);
                 }
             }
             catch (Exception ex)
             {
                 return NotFound("Something went wrong... Please try again");
             }
-            return View(_ticketRepo.GetAll());
         }
-
+        #region SortingActions(Methods)
+        public async Task<IActionResult> SortByTitle(int? page)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
+            ViewBag.sortList = new List<SelectListItem>
+            {
+                new SelectListItem("Title", "0"),
+                new SelectListItem("Owner", "1"),
+                new SelectListItem("Assignment", "2"),
+                new SelectListItem("Creation Time", "3"),
+                new SelectListItem("Ticket Type", "4"),
+                new SelectListItem("Priority", "5"),
+                new SelectListItem("Status", "6"),
+                new SelectListItem("Project", "7")
+            };
+            ViewBag.actionName = "SortByTitle";
+            IPagedList<Ticket> allTickets = _ticketRepo.GetAll().OrderBy(u => u.Title).ToPagedList(pageNumber, pageSize);
+            foreach (Ticket ticket in allTickets)
+            {
+                await _userManager.FindByIdAsync(ticket.DeveloperId);
+                await _userManager.FindByIdAsync(ticket.SubmitterId);
+                _projectRepo.Get(ticket.ProjectId);
+            }
+            return View("AllTicketSort", allTickets);
+        }
+        public async Task<IActionResult> SortBySubmitter(int? page)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
+            ViewBag.sortList = new List<SelectListItem>
+            {
+                new SelectListItem("Title", "0"),
+                new SelectListItem("Owner", "1"),
+                new SelectListItem("Assignment", "2"),
+                new SelectListItem("Creation Time", "3"),
+                new SelectListItem("Ticket Type", "4"),
+                new SelectListItem("Priority", "5"),
+                new SelectListItem("Status", "6"),
+                new SelectListItem("Project", "7")
+            };
+            ViewBag.actionName = "SortBySubmitter";
+            IPagedList<Ticket> allTickets = _ticketRepo.GetAll().OrderBy(u => u.SubmitterId).ToPagedList(pageNumber, pageSize);
+            foreach (Ticket ticket in allTickets)
+            {
+                await _userManager.FindByIdAsync(ticket.DeveloperId);
+                await _userManager.FindByIdAsync(ticket.SubmitterId);
+                _projectRepo.Get(ticket.ProjectId);
+            }
+            return View("AllTicketSort", allTickets);
+        }
+        public async Task<IActionResult> SortByDeveloper(int? page)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
+            ViewBag.sortList = new List<SelectListItem>
+            {
+                new SelectListItem("Title", "0"),
+                new SelectListItem("Owner", "1"),
+                new SelectListItem("Assignment", "2"),
+                new SelectListItem("Creation Time", "3"),
+                new SelectListItem("Ticket Type", "4"),
+                new SelectListItem("Priority", "5"),
+                new SelectListItem("Status", "6"),
+                new SelectListItem("Project", "7")
+            };
+            ViewBag.actionName = "SortByDeveloper";
+            IPagedList<Ticket> allTickets = _ticketRepo.GetAll().OrderBy(u => u.DeveloperId).ToPagedList(pageNumber, pageSize);
+            foreach (Ticket ticket in allTickets)
+            {
+                await _userManager.FindByIdAsync(ticket.DeveloperId);
+                await _userManager.FindByIdAsync(ticket.SubmitterId);
+                _projectRepo.Get(ticket.ProjectId);
+            }
+            return View("AllTicketSort", allTickets);
+        }
+        public async Task<IActionResult> SortByCreateDate(int? page)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
+            ViewBag.sortList = new List<SelectListItem>
+            {
+                new SelectListItem("Title", "0"),
+                new SelectListItem("Owner", "1"),
+                new SelectListItem("Assignment", "2"),
+                new SelectListItem("Creation Time", "3"),
+                new SelectListItem("Ticket Type", "4"),
+                new SelectListItem("Priority", "5"),
+                new SelectListItem("Status", "6"),
+                new SelectListItem("Project", "7")
+            };
+            ViewBag.actionName = "SortByCreateDate";
+            IPagedList<Ticket> allTickets = _ticketRepo.GetAll().OrderBy(u => u.CreatedDate).ToPagedList(pageNumber, pageSize);
+            foreach (Ticket ticket in allTickets)
+            {
+                await _userManager.FindByIdAsync(ticket.DeveloperId);
+                await _userManager.FindByIdAsync(ticket.SubmitterId);
+                _projectRepo.Get(ticket.ProjectId);
+            }
+            return View("AllTicketSort", allTickets);
+        }
+        public async Task<IActionResult> SortByTicketType(int? page)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
+            ViewBag.sortList = new List<SelectListItem>
+            {
+                new SelectListItem("Title", "0"),
+                new SelectListItem("Owner", "1"),
+                new SelectListItem("Assignment", "2"),
+                new SelectListItem("Creation Time", "3"),
+                new SelectListItem("Ticket Type", "4"),
+                new SelectListItem("Priority", "5"),
+                new SelectListItem("Status", "6"),
+                new SelectListItem("Project", "7")
+            };
+            ViewBag.actionName = "SortByTicketType";
+            IPagedList<Ticket> allTickets = _ticketRepo.GetAll().OrderBy(u => u.Type).ToPagedList(pageNumber, pageSize);
+            foreach (Ticket ticket in allTickets)
+            {
+                await _userManager.FindByIdAsync(ticket.DeveloperId);
+                await _userManager.FindByIdAsync(ticket.SubmitterId);
+                _projectRepo.Get(ticket.ProjectId);
+            }
+            return View("AllTicketSort", allTickets);
+        }
+        public async Task<IActionResult> SortByPriority(int? page)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
+            ViewBag.sortList = new List<SelectListItem>
+            {
+                new SelectListItem("Title", "0"),
+                new SelectListItem("Owner", "1"),
+                new SelectListItem("Assignment", "2"),
+                new SelectListItem("Creation Time", "3"),
+                new SelectListItem("Ticket Type", "4"),
+                new SelectListItem("Priority", "5"),
+                new SelectListItem("Status", "6"),
+                new SelectListItem("Project", "7")
+            };
+            ViewBag.actionName = "SortByPriority";
+            IPagedList<Ticket> allTickets = _ticketRepo.GetAll().OrderBy(u => u.Priority).ToPagedList(pageNumber, pageSize);
+            foreach (Ticket ticket in allTickets)
+            {
+                await _userManager.FindByIdAsync(ticket.DeveloperId);
+                await _userManager.FindByIdAsync(ticket.SubmitterId);
+                _projectRepo.Get(ticket.ProjectId);
+            }
+            return View("AllTicketSort", allTickets);
+        }
+        public async Task<IActionResult> SortByTicketStatus(int? page)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
+            ViewBag.sortList = new List<SelectListItem>
+            {
+                new SelectListItem("Title", "0"),
+                new SelectListItem("Owner", "1"),
+                new SelectListItem("Assignment", "2"),
+                new SelectListItem("Creation Time", "3"),
+                new SelectListItem("Ticket Type", "4"),
+                new SelectListItem("Priority", "5"),
+                new SelectListItem("Status", "6"),
+                new SelectListItem("Project", "7")
+            };
+            ViewBag.actionName = "SortByTicketStatus";
+            IPagedList<Ticket> allTickets = _ticketRepo.GetAll().OrderBy(u => u.Status).ToPagedList(pageNumber, pageSize);
+            foreach (Ticket ticket in allTickets)
+            {
+                await _userManager.FindByIdAsync(ticket.DeveloperId);
+                await _userManager.FindByIdAsync(ticket.SubmitterId);
+                _projectRepo.Get(ticket.ProjectId);
+            }
+            return View("AllTicketSort", allTickets);
+        }
+        public async Task<IActionResult> SortByTicketProject(int? page)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;  //hardcode how many records will be displaying on 1 page
+            ViewBag.sortList = new List<SelectListItem>
+            {
+                new SelectListItem("Title", "0"),
+                new SelectListItem("Owner", "1"),
+                new SelectListItem("Assignment", "2"),
+                new SelectListItem("Creation Time", "3"),
+                new SelectListItem("Ticket Type", "4"),
+                new SelectListItem("Priority", "5"),
+                new SelectListItem("Status", "6"),
+                new SelectListItem("Project", "7")
+            };
+            ViewBag.actionName = "SortByTicketProject";
+            IPagedList<Ticket> allTickets = _ticketRepo.GetAll().OrderBy(u => u.ProjectId).ToPagedList(pageNumber, pageSize);
+            foreach (Ticket ticket in allTickets)
+            {
+                await _userManager.FindByIdAsync(ticket.DeveloperId);
+                await _userManager.FindByIdAsync(ticket.SubmitterId);
+                _projectRepo.Get(ticket.ProjectId);
+            }
+            return View("AllTicketSort", allTickets);
+        }
+        #endregion
         [HttpPost]
         public async Task<IActionResult> TicketDetails(int ticketId, string comment)
         {
