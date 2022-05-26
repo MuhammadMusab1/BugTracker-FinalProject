@@ -24,16 +24,6 @@ namespace BugTracker.Data.BLL
             TicketLogItemRepo = ticketLogItemRepo;
             TicketNotificationRepo = ticketNotificationRepo;
         }
-
-        public List<Ticket> GetAllTickets()
-        {
-            return TicketRepo.GetAll().ToList();
-        }
-
-        public List<Ticket> GetAllTicketsFromUser(string userId)
-        {
-            return TicketRepo.GetList(t => t.SubmitterId == userId).ToList();
-        }
         public async Task<Ticket> UpdateTicketWithTicketHistoryAndTicketLog(int? ticketId, Ticket updatedTicket, ApplicationUser userUpdatingTheTicket)
         {
             Ticket ticket = TicketRepo.Get(ticket => ticket.Id == ticketId);
