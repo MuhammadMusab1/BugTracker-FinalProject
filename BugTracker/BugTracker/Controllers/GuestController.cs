@@ -25,22 +25,7 @@ namespace BugTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var passwordHasher = new PasswordHasher<ApplicationUser>();
-
-            //user1
-            ApplicationUser guestUser = new ApplicationUser()
-            {
-                Email = "guest03@gmail.com",
-                NormalizedEmail = "GUEST03@GMAIL.COM",
-                UserName = "guest03@gmail.com",
-                NormalizedUserName = "GUEST03@GMAIL.COM",
-                EmailConfirmed = true,
-                ProjectsOwned = new HashSet<Project>() //need to be intialized to use the list
-            };
-            var firstUserHashedPassword = passwordHasher.HashPassword(guestUser, "Password!1");
-            guestUser.PasswordHash = firstUserHashedPassword;
-            await _userManager.CreateAsync(guestUser);
-            await _userManager.AddToRoleAsync(guestUser, "Admin");
+            ApplicationUser guestUser = await _userManager.FindByNameAsync("guest03@gmail.com");
             return View(guestUser);
         }
 
