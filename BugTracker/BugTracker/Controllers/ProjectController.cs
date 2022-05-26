@@ -146,25 +146,40 @@ namespace BugTracker.Controllers
         [Authorize(Roles = "Project Manager, Admin")]
         public async Task<IActionResult> AssignDeveloperToProject()
         {
-            ViewBag.DeveloperList = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName");
-            ViewBag.ProjectList = new SelectList(_projectRepository.GetAll(), "Id", "Name");
+            ApplicationUser currentProjectManager = await _userManager.FindByNameAsync(User.Identity.Name);
+            List<ApplicationUser> developers = new List<ApplicationUser>(await _userManager.GetUsersInRoleAsync("Developer"));
+            List<Project> projectManagerProjects = _projectRepository.GetList(project => project.ProjectManagerId == currentProjectManager.Id).ToList();
+            if (!developers.Any())
+            {
+                ViewBag.DeveloperMsg = "No Developers in the database!";
+            }
+            if(!projectManagerProjects.Any())
+            {
+                ViewBag.ProjectMsg = "No Projects in the database by this project Manager!";
+            }
+            ViewBag.DeveloperList = new SelectList(developers, "Id", "UserName");
+            ViewBag.ProjectList = new SelectList(projectManagerProjects, "Id", "Name");
             return View();
         }
      
         [HttpPost]
         public async Task<IActionResult> AssignDeveloperToProject(int projId, string devId)
         {
-            ViewBag.DeveloperList = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName");
-            ViewBag.ProjectList = new SelectList(_projectRepository.GetAll(), "Id", "Name");
-            try
+            ApplicationUser currentProjectManager = await _userManager.FindByNameAsync(User.Identity.Name);
+            List<ApplicationUser> developers = new List<ApplicationUser>(await _userManager.GetUsersInRoleAsync("Developer"));
+            List<Project> projectManagerProjects = _projectRepository.GetList(project => project.ProjectManagerId == currentProjectManager.Id).ToList();
+            if (!developers.Any())
             {
-                projBl.AddDeveloperToProject(devId, projId);
-                ViewBag.Message = "Successfully assigned developer to project.";
+                ViewBag.DeveloperMsg = "No Developers in the database!";
             }
-            catch
+            if (!projectManagerProjects.Any())
             {
-                ViewBag.Message = "Could not assign developer.";
+                ViewBag.ProjectMsg = "No Projects in the database by this project Manager!";
             }
+            ViewBag.DeveloperList = new SelectList(developers, "Id", "UserName");
+            ViewBag.ProjectList = new SelectList(projectManagerProjects, "Id", "Name");
+            string message = projBl.AddDeveloperToProject(devId, projId).Result;
+            ViewBag.Message = message;
             return View();
         }
 
