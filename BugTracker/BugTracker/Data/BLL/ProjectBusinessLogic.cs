@@ -48,14 +48,22 @@ namespace BugTracker.Data.BLL
         }
 
         [Authorize(Roles = "Admin, Project Manager")]
-        public async void AddDeveloperToProject(string devId, int projId)
+        public async Task<string> AddDeveloperToProject(string devId, int projId)
         {
-            ApplicationUser user = await UserManager.FindByIdAsync(devId);
-            Project project = ProjectRepo.Get(projId);
-            project.Developers.Add(user);
-            user.ProjectAssigned = project; //One to many between Developer and Project(ProjectAssigned is the assigned project to a Developer)
-            user.ProjectAssignedId = project.Id;
-            ProjectRepo.Save();
+            try
+            {
+                ApplicationUser user = await UserManager.FindByIdAsync(devId);
+                Project project = ProjectRepo.Get(projId);
+                project.Developers.Add(user);
+                user.ProjectAssigned = project; //One to many between Developer and Project(ProjectAssigned is the assigned project to a Developer)
+                user.ProjectAssignedId = project.Id;
+                ProjectRepo.Save();
+                return "Successfully assigned developer to project.";
+            }
+            catch (Exception ex)
+            {
+                return "Could not assign developer.";
+            }
         }
 
         public async void AssignProjToPM(int projId, string pmId)

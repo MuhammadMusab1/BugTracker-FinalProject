@@ -36,6 +36,20 @@ namespace BugTracker.Models
                 //create new users
                 var passwordHasher = new PasswordHasher<ApplicationUser>();
 
+                //guest
+                ApplicationUser guestUser = new ApplicationUser()
+                {
+                    Email = "guest03@gmail.com",
+                    NormalizedEmail = "GUEST03@GMAIL.COM",
+                    UserName = "guest03@gmail.com",
+                    NormalizedUserName = "GUEST03@GMAIL.COM",
+                    EmailConfirmed = true,
+                };
+                var guestUserHashedPassword = passwordHasher.HashPassword(guestUser, "Password!1");
+                guestUser.PasswordHash = guestUserHashedPassword;
+                await userManager.CreateAsync(guestUser);
+                await userManager.AddToRoleAsync(guestUser, "Admin");
+
                 //user1
                 ApplicationUser firstUser = new ApplicationUser()
                 {

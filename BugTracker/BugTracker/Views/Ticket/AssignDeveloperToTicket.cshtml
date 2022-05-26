@@ -1,8 +1,4 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model Ticket
 <h2>Assign Developer to Ticket</h2>
 
 <form asp-action="AssignDeveloperToTicket" method="post">
@@ -13,7 +9,11 @@
     <input type="submit" value="Assign" class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;"/>
 </form>
 
+<div style="margin: 2rem 0rem 2rem 0rem;">
+     @ViewBag.NoDevelopersAssignedToProjectMsg
+</div>
+
 <div>
-    <a asp-controller="Project" asp-action="ListProjectPM">Back to Project Manager's Projects</a>
-    <a asp-controller="Project" asp-action="ProjectTickets">Back to Project's Tickets</a>
+    <a asp-controller="Project" asp-action="ListProjectPM">Back to Project Manager's Projects</a> |
+    <a asp-controller="Ticket" asp-action="ProjectTickets" asp-route-projectId="@Model.ProjectId">Back to Project's Tickets</a>
 </div>

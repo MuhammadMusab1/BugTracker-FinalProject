@@ -1,4 +1,5 @@
-﻿@model IEnumerable<BugTracker.Models.Ticket>
+﻿@using X.PagedList.Mvc.Core;
+@model X.PagedList.IPagedList<BugTracker.Models.Ticket>
 
 @{
     ViewData["Title"] = "AllTicketSort";
@@ -16,34 +17,28 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                Title
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+               Created Date
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
+                Priority
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UpdatedDate)
+                Status
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Priority)
+                Type
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Status)
+                Project
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Type)
+                Developer
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Project)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Developer)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Submitter)
+                Submitter
             </th>
             <th></th>
         </tr>
@@ -55,13 +50,7 @@
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.CreatedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedDate)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Priority)
@@ -73,13 +62,20 @@
                 @Html.DisplayFor(modelItem => item.Type)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Project.Id)
+                @Html.DisplayFor(modelItem => item.Project.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Developer.Id)
+                 @if(item.DeveloperId == null)
+                    {
+                        <div style="font-weight: bold;color: red;">Unassign</div>
+                    }
+                    else
+                    {
+                        <div style="font-weight: bold;color: purple;"> @item.Developer.UserName</div>
+                    }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Submitter.Id)
+                @Html.DisplayFor(modelItem => item.Submitter.UserName)
             </td>
             <td>
                 <a asp-action="UpdateTicket" asp-route-ticketId="@item.Id">Edit</a> |
@@ -89,3 +85,17 @@
 }
     </tbody>
 </table>
+@{
+    string actionName = ViewBag.actionName;
+}
+<nav aria-label="Ticket navigation">
+    @Html.PagedListPager(Model, page => Url.Action(actionName, new {page = page}), 
+    
+    new X.PagedList.Web.Common.PagedListRenderOptions 
+    {
+        DisplayItemSliceAndTotal = false,
+        ContainerDivClasses = new[] {"navigation"},
+        LiElementClasses = new[] {"page-item"},
+        PageClasses = new[] {"page-link"},
+    })
+</nav>
