@@ -83,6 +83,8 @@ namespace BugTracker.Data.BLL
                 //One to One
                 ticketHistory.TicketLogItem = ticketLogItem;
                 ticketHistory.TicketLogItemId = ticketLogItem.Id;
+                ticketLogItem.TicketHistoryId = ticketHistory.Id;
+                ticketLogItem.TicketHistory = ticketHistory;
                 //Many to Many
                 ticket.TicketHistories.Add(ticketHistory);
                 userUpdatingTheTicket.TicketHistories.Add(ticketHistory);
