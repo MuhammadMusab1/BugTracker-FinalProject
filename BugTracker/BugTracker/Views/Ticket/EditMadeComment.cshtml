@@ -1,0 +1,40 @@
+﻿@model BugTracker.Models.TicketComment
+
+@{
+    ViewData["Title"] = "EditMadeComment";
+}
+
+<h1>Edit Your Comment</h1>
+
+<h4>Ticket Comment</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditMadeComment" asp-route-ticketCommentId="@Model.Id">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Comment" class="control-label"></label>
+                <input asp-for="Comment" class="form-control" />
+                <span asp-validation-for="Comment" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<br />
+
+<div>
+    <p>@ViewBag.Message</p>
+</div>
+
+<br />
+
+<div>
+    <a asp-controller="Ticket" asp-action="TicketDetails" asp-route-ticketId="@ViewBag.TicketId">Back to Ticket</a>
+</div>
+

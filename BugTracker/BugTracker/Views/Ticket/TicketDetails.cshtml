@@ -80,9 +80,17 @@
     </dl>
 </div>
 <div>
-    <a asp-action="UpdateTicket" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-controller="Ticket" asp-action="ProjectTickets" asp-route-projectId="@Model.ProjectId">Back to Project Tickets List</a> | 
-    <a asp-action="AssignDeveloperToTicket" asp-controller="Ticket" asp-route-ticketId="@Model.Id">Assign Developer</a>
+    <a asp-action="UpdateTicket" asp-route-ticketId="@Model?.Id">Edit</a> |
+    <a asp-controller="Ticket" asp-action="ProjectTickets" asp-route-projectId="@Model.ProjectId">Back to Project's Tickets</a>|
+    @if(ViewBag.IsAdmin)
+    {
+        <a class="btn btn-primary" asp-controller="Ticket" asp-action="AllTicketSort">Back to All Tickets</a>
+    }
+    @if(ViewBag.IsAdmin == true || ViewBag.IsProjectManager == true)
+    {
+        <a class="btn btn-primary" asp-action="AssignDeveloperToTicket" asp-controller="Ticket" asp-route-ticketId="@Model.Id">Assign Developer</a>
+    } | 
+    <a class="btn btn-primary" asp-action="GetTicketLogItemToShowTicketHistory" asp-controller="Ticket" asp-route-ticketId="@Model.Id">See History</a>
 </div>
 
 <br />
@@ -104,10 +112,14 @@
                  <div>@comment.User.UserName</div>
 
              </div>
+             @if(comment.User.Id == ViewBag.CurrentUserId)
+                {
+                    <a asp-controller="Ticket" asp-action="EditMadeComment" asp-route-ticketCommentId="@comment.Id">Edit your comment</a>
+                }
              @if(ViewBag.IsAdmin) 
-               {
-                <a asp-action="DeleteComment" asp-route-commentId=@comment.Id>Delete</a>
-               }
+                {
+                    <a asp-action="DeleteComment" asp-route-commentId=@comment.Id>Delete</a>
+                }
         </div>
     }
 </div>
