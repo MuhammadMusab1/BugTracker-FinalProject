@@ -83,7 +83,8 @@
     <a asp-action="UpdateTicket" asp-route-ticketId="@Model?.Id">Edit</a> |
     <a asp-controller="Ticket" asp-action="ProjectTickets" asp-route-projectId="@Model.ProjectId">Back to Project Tickets List</a> | 
     <a asp-controller="Ticket" asp-action="AllTicketSort">Back to All Tickets</a> |
-    <a asp-action="AssignDeveloperToTicket" asp-controller="Ticket" asp-route-ticketId="@Model.Id">Assign Developer</a>
+    <a asp-action="AssignDeveloperToTicket" asp-controller="Ticket" asp-route-ticketId="@Model.Id">Assign Developer</a> | 
+    <a class="btn btn-primary" asp-action="GetTicketLogItemToShowTicketHistory" asp-controller="Ticket" asp-route-ticketId="@Model.Id">See History</a>
 </div>
 
 <br />
