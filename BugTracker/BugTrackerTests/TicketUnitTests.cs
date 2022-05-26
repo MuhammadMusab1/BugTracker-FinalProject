@@ -19,6 +19,7 @@ namespace BugTrackerTests
         public Mock<IRepository<TicketHistory>> ticketHistoryRepoMock { get; set; }
         public Mock<IRepository<TicketLogItem>> ticketLogItemRepoMock { get; set; }
         public Mock<IRepository<TicketNotification>> ticketNotificationRepoMock { get; set; }
+        public Mock<IRepository<TicketComment>> ticketCommentRepoMock { get; set; }
         public Mock<UserManager<ApplicationUser>> userManagerMock { get; set; }
         public Mock<RoleManager<IdentityRole>> roleManagerMock { get; set; }
         public TicketBusinessLogic ticketBL { get; set; }
@@ -194,5 +195,26 @@ namespace BugTrackerTests
             Assert.AreEqual(1, developer.TicketNotifications.Count());
             Assert.AreEqual(1, allNotifications.Count());
         }
+
+        //[TestMethod]
+        //public async Task AddingCommentToTicketWorks()
+        //{
+        //    //arrange
+        //    Ticket ticket = ticketRepoMock.Get(ticketId);
+        //    TicketComment ticketComment = new TicketComment()
+        //    {
+        //        Comment = comment,
+        //        CreatedDate = DateTime.Now,
+        //        Ticket = ticket,
+        //        TicketId = ticketId,
+        //        User = userCommenting,
+        //        UserId = userCommenting.Id,
+        //    };
+        //    ticketCommentRepoMock.Add(ticketComment);
+
+        //    //act
+
+        //    //assert
+        //}
     }
 }
