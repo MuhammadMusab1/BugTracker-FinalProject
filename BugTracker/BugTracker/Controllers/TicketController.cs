@@ -173,17 +173,23 @@ namespace BugTracker.Controllers
             }
         }
 
-        [Authorize(Roles = "Project Manager")]
+        [Authorize(Roles = "Project Manager, Admin")]
         //https://localhost:7045/ticket/assignDeveloperToTicket
         [HttpGet]
         public async Task<IActionResult> AssignDeveloperToTicket(int? ticketId) //parameter: int? ticketId
         {
             if(ticketId != null)
             {
-                List<ApplicationUser> developers = new List<ApplicationUser>(await _userManager.GetUsersInRoleAsync("Developer"));
-                ViewBag.developerList = new SelectList(developers, "Id", "UserName");
+                Ticket ticket = _ticketRepo.Get((int)ticketId);
+                _projectRepo.Get(ticket.ProjectId);
+                await _userManager.GetUsersInRoleAsync("Developer"); // fills the ticket.Project.Developers list with the right developers
+                if(!ticket.Project.Developers.Any())
+                {
+                    ViewBag.NoDevelopersAssignedToProjectMsg = "Sorry, You don't have any developers assigned to this Project";
+                }
+                ViewBag.developerList = new SelectList(ticket.Project.Developers, "Id", "UserName");
                 ViewBag.ticketId = ticketId;
-                return View();
+                return View(ticket);
             }
             else
             {
@@ -218,32 +224,6 @@ namespace BugTracker.Controllers
         {
             return View();
         }
-
-        public async Task<IActionResult> TicketDetails(int ticketId)
-        {
-            ApplicationUser currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
-            if (await _userManager.IsInRoleAsync(currentUser, "Admin"))
-            {
-                ViewBag.IsAdmin = true;
-            }
-            else
-            {
-                ViewBag.IsAdmin = false;
-            }
-            Ticket ticket = _ticketRepo.Get(ticketId);
-            //Query things from Database (works like include)
-            _projectRepo.Get(ticket.ProjectId);
-            await _userManager.FindByIdAsync(ticket.SubmitterId);
-            await _userManager.FindByIdAsync(ticket.DeveloperId);
-            List<TicketComment> CommentList = _ticketCommentRepo.GetList(ticketComment => ticketComment.TicketId == ticketId).ToList();
-            foreach (TicketComment ticketComment in CommentList)
-            {
-                await _userManager.FindByIdAsync(ticketComment.UserId);
-            }
-            ViewBag.CommentList = CommentList;
-            return View(_ticketRepo.Get(ticketId));
-        }
-
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> AllTicketSort(string? filterId, int? page)
@@ -516,6 +496,39 @@ namespace BugTracker.Controllers
             return View("AllTicketSort", allTickets);
         }
         #endregion
+        [HttpGet]
+        public async Task<IActionResult> TicketDetails(int ticketId)
+        {
+            ApplicationUser currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            if (await _userManager.IsInRoleAsync(currentUser, "Admin"))
+            {
+                ViewBag.IsAdmin = true;
+            }
+            else
+            {
+                ViewBag.IsAdmin = false;
+            }
+            if (await _userManager.IsInRoleAsync(currentUser, "Project Manager"))
+            {
+                ViewBag.IsProjectManager = true;
+            }
+            else
+            {
+                ViewBag.IsProjectManager = false;
+            }
+            Ticket ticket = _ticketRepo.Get(ticketId);
+            //Query things from Database (works like include)
+            _projectRepo.Get(ticket.ProjectId);
+            await _userManager.FindByIdAsync(ticket.SubmitterId);
+            await _userManager.FindByIdAsync(ticket.DeveloperId);
+            List<TicketComment> CommentList = _ticketCommentRepo.GetList(ticketComment => ticketComment.TicketId == ticketId).ToList();
+            foreach (TicketComment ticketComment in CommentList)
+            {
+                await _userManager.FindByIdAsync(ticketComment.UserId);
+            }
+            ViewBag.CommentList = CommentList;
+            return View(_ticketRepo.Get(ticketId));
+        }
         [HttpPost]
         public async Task<IActionResult> TicketDetails(int ticketId, string comment)
         {
@@ -535,6 +548,14 @@ namespace BugTracker.Controllers
             else
             {
                 ViewBag.IsAdmin = false;
+            }
+            if (await _userManager.IsInRoleAsync(userCommenting, "Project Manager"))
+            {
+                ViewBag.IsProjectManager = true;
+            }
+            else
+            {
+                ViewBag.IsProjectManager = false;
             }
             Ticket ticket = _ticketRepo.Get(ticketId);
             _projectRepo.Get(ticket.ProjectId); //query the project
