@@ -559,6 +559,7 @@ namespace BugTracker.Controllers
             }
             Ticket ticket = _ticketRepo.Get(ticketId);
             _projectRepo.Get(ticket.ProjectId); //query the project
+            ViewBag.CurrentUserId = userCommenting.Id;
             return View(ticket);
 
         }
@@ -612,6 +613,30 @@ namespace BugTracker.Controllers
             {
                 return View("ticketId is null at GetTicketLogItemToShowTicketHistory get method");
             }
+        }
+
+        public IActionResult EditMadeComment(int ticketCommentId)
+        {
+            TicketComment tc = _ticketCommentRepo.Get(ticketCommentId);
+            ViewBag.TicketId = tc.TicketId;
+            return View(tc);
+        }
+
+        [HttpPost]
+        public IActionResult EditMadeComment(int ticketCommentId, string Comment)
+        {
+            TicketComment tc = _ticketCommentRepo.Get(ticketCommentId);
+            ViewBag.TicketId = tc.TicketId;
+            try
+            {
+                commentattachmentBL.EditCommentOnTicket(tc.Id, Comment);
+                ViewBag.Message = "Successfully changed comment.";
+            }
+            catch
+            {
+                ViewBag.Message = "Could not change comment.";
+            }           
+            return View(tc);
         }
     }
 }

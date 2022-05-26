@@ -112,10 +112,14 @@
                  <div>@comment.User.UserName</div>
 
              </div>
+             @if(comment.User.Id == ViewBag.CurrentUserId)
+                {
+                    <a asp-controller="Ticket" asp-action="EditMadeComment" asp-route-ticketCommentId="@comment.Id">Edit your comment</a>
+                }
              @if(ViewBag.IsAdmin) 
-               {
-                <a asp-action="DeleteComment" asp-route-commentId=@comment.Id>Delete</a>
-               }
+                {
+                    <a asp-action="DeleteComment" asp-route-commentId=@comment.Id>Delete</a>
+                }
         </div>
     }
 </div>
