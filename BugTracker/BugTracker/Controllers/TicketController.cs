@@ -219,11 +219,6 @@ namespace BugTracker.Controllers
                 return BadRequest("ticketId or developerId is missing at AssignDeveloperToTicket post method");
             }
         }
-
-        public async Task<IActionResult> DeleteTicket(int ticketId)
-        {
-            return View();
-        }
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> AllTicketSort(string? filterId, int? page)
