@@ -53,11 +53,11 @@ namespace BugTracker.Data.BLL
             TicketAttachmentRepo.Add(ticketAttachment);
         }
 
-        public void EditCommentOnTicket(TicketComment ticketComment, string newComment)
+        public void EditCommentOnTicket(int ticketCommentId, string newComment)
         {
-            TicketComment commentToEdit = ticketComment.Ticket.TicketComments.First(tc => tc.Id == ticketComment.Id);
-            commentToEdit.Comment = "";
+            TicketComment commentToEdit = TicketCommentRepo.Get(ticketCommentId);
             commentToEdit.Comment = newComment;
+            TicketCommentRepo.Save();
         }
     }
 }

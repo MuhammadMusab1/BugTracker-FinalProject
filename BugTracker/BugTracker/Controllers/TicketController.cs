@@ -239,8 +239,10 @@ namespace BugTracker.Controllers
             foreach (TicketComment ticketComment in CommentList)
             {
                 await _userManager.FindByIdAsync(ticketComment.UserId);
+                ticketComment.TicketId = ticketId;
             }
             ViewBag.CommentList = CommentList;
+            ViewBag.CurrentUserId = currentUser.Id;
             return View(_ticketRepo.Get(ticketId));
         }
 
@@ -324,6 +326,7 @@ namespace BugTracker.Controllers
             }
             Ticket ticket = _ticketRepo.Get(ticketId);
             _projectRepo.Get(ticket.ProjectId); //query the project
+            ViewBag.CurrentUserId = userCommenting.Id;
             return View(ticket);
 
         }
@@ -332,6 +335,30 @@ namespace BugTracker.Controllers
         public IActionResult ListDeveloperTickets()
         {
             return View(_ticketRepo.GetList(d => d.Developer == User.Identity));
+        }
+
+        public IActionResult EditMadeComment(int ticketCommentId)
+        {
+            TicketComment tc = _ticketCommentRepo.Get(ticketCommentId);
+            ViewBag.TicketId = tc.TicketId;
+            return View(tc);
+        }
+
+        [HttpPost]
+        public IActionResult EditMadeComment(int ticketCommentId, string Comment)
+        {
+            TicketComment tc = _ticketCommentRepo.Get(ticketCommentId);
+            ViewBag.TicketId = tc.TicketId;
+            try
+            {
+                commentattachmentBL.EditCommentOnTicket(tc.Id, Comment);
+                ViewBag.Message = "Successfully changed comment.";
+            }
+            catch
+            {
+                ViewBag.Message = "Could not change comment.";
+            }           
+            return View(tc);
         }
     }
 }
