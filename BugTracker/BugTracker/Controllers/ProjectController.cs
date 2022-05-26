@@ -37,9 +37,28 @@ namespace BugTracker.Controllers
             return View(allProjects);
         }
 
-        public IActionResult ProjectDetails(int projectId)
+        public async Task<IActionResult> ProjectDetails(int projectId)
         {
-            return View(_projectRepository.Get(projectId));
+            ApplicationUser currentLoggedInUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            Project project = _projectRepository.Get(projectId);
+            await _userManager.FindByIdAsync(project.ProjectManagerId);
+            if(currentLoggedInUser.Id == project.ProjectManagerId)
+            {
+                ViewBag.CurrentUserIsProjectManager = true;
+            }
+            else
+            {
+                ViewBag.CurrentUserIsProjectManager = false;
+            }
+            if(await _userManager.IsInRoleAsync(currentLoggedInUser, "Admin"))
+            {
+                ViewBag.CurrentUserIsAdmin = true;
+            }
+            else
+            {
+                ViewBag.CurrentUserIsAdmin = false;
+            }
+            return View(project);
         }
 
         public IActionResult Index()
@@ -53,7 +72,7 @@ namespace BugTracker.Controllers
             return View();
         }
 
-        [Authorize(Roles = "Project Manager")]
+        [Authorize(Roles = "Project Manager, Admin")]
         public async Task<IActionResult> ListProjectsPM()
         {
             ApplicationUser user = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -98,7 +117,7 @@ namespace BugTracker.Controllers
             return View("Index");
         }
 
-        [Authorize(Roles ="Project Manager")]
+        [Authorize(Roles ="Project Manager, Admin")]
         [HttpGet]
         public IActionResult UpdateProject(int projId)
         {
