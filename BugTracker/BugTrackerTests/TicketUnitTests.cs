@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,9 +21,12 @@ namespace BugTrackerTests
         public Mock<IRepository<TicketLogItem>> ticketLogItemRepoMock { get; set; }
         public Mock<IRepository<TicketNotification>> ticketNotificationRepoMock { get; set; }
         public Mock<IRepository<TicketComment>> ticketCommentRepoMock { get; set; }
+        public Mock<IRepository<TicketAttachment>> ticketAttachmentRepoMock { get; set; }
         public Mock<UserManager<ApplicationUser>> userManagerMock { get; set; }
         public Mock<RoleManager<IdentityRole>> roleManagerMock { get; set; }
         public TicketBusinessLogic ticketBL { get; set; }
+        public CommentAndAttachmentBusinessLogic commentAndAttachmentBL { get; set; }
+
         [TestInitialize]
         public void Initialize()
         {
@@ -32,6 +36,8 @@ namespace BugTrackerTests
             ticketHistoryRepoMock = new Mock<IRepository<TicketHistory>>();
             ticketLogItemRepoMock = new Mock<IRepository<TicketLogItem>>();
             ticketNotificationRepoMock = new Mock<IRepository<TicketNotification>>();
+            ticketCommentRepoMock = new Mock<IRepository<TicketComment>>();
+            ticketAttachmentRepoMock = new Mock<IRepository<TicketAttachment>>();
             //stackoverflow solution(mine was giving errors)
             roleManagerMock = new Mock<RoleManager<IdentityRole>>(Mock.Of<IRoleStore<IdentityRole>>(), null, null, null, null);
             userManagerMock = new Mock<UserManager<ApplicationUser>>(Mock.Of<IUserStore<ApplicationUser>>(), null, null, null, null, null, null, null, null);
@@ -113,6 +119,7 @@ namespace BugTrackerTests
 
             //Instantiate TicketBL
             ticketBL = new TicketBusinessLogic(projectRepoMock.Object, ticketRepoMock.Object, ticketHistoryRepoMock.Object, ticketLogItemRepoMock.Object, ticketNotificationRepoMock.Object, userManagerMock.Object, roleManagerMock.Object);
+            commentAndAttachmentBL = new CommentAndAttachmentBusinessLogic(projectRepoMock.Object, ticketRepoMock.Object, ticketAttachmentRepoMock.Object, ticketCommentRepoMock.Object, userManagerMock.Object);
         }
         [TestMethod]
         public async Task UpdateMethodUpdatesTheTicketAndCreateTicketHistoryAndTicketLogForIt()
@@ -196,25 +203,112 @@ namespace BugTrackerTests
             Assert.AreEqual(1, allNotifications.Count());
         }
 
-        //[TestMethod]
-        //public async Task AddingCommentToTicketWorks()
-        //{
-        //    //arrange
-        //    Ticket ticket = ticketRepoMock.Get(ticketId);
-        //    TicketComment ticketComment = new TicketComment()
-        //    {
-        //        Comment = comment,
-        //        CreatedDate = DateTime.Now,
-        //        Ticket = ticket,
-        //        TicketId = ticketId,
-        //        User = userCommenting,
-        //        UserId = userCommenting.Id,
-        //    };
-        //    ticketCommentRepoMock.Add(ticketComment);
+        [TestMethod]
+        public async Task AddingCommentToTicketWorks()
+        {
+            //arrange
+            ApplicationUser developer = await userManagerMock.Object.FindByIdAsync("testGUID3");
+            Ticket ticket = new Ticket()
+            {
+                Id = 1,
+                Title = "test comment",
+                Description = "test comment",
+                Developer = developer,
+                DeveloperId = developer.Id,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Parse("June 12 2022 12:00"),
+                Type = TicketType.AccountIssue,
+                Priority = TicketPriority.Medium,
+                Status = TicketStatus.OnHold,           
+            };
 
-        //    //act
+            TicketComment ticketComment = new TicketComment()
+            {
+                Comment = "test comment",
+                CreatedDate = DateTime.Now,
+                Ticket = ticket,
+                TicketId = ticket.Id,
+                User = developer,
+                UserId = developer.Id,
+            };
 
-        //    //assert
-        //}
+            List<TicketComment> allTicketComments = new List<TicketComment>();
+            ticketCommentRepoMock.Setup(repo => repo.Get(It.IsAny<Func<TicketComment, bool>>())).Returns(ticketComment);
+            ticketCommentRepoMock.Setup(repo => repo.Add(It.IsAny<TicketComment>())).Callback<TicketComment>((ticketCom) => allTicketComments.Add(ticketCom));
+
+            //act
+            commentAndAttachmentBL.AddCommentToTicket(ticket.Id, ticketComment.Comment, developer);
+
+            //assert
+            Assert.AreEqual(1, allTicketComments.Count);
+        }
+
+        [TestMethod]
+        public async Task TicketAttachmentAddWorks()
+        {
+            //arrange
+            ApplicationUser developer = await userManagerMock.Object.FindByIdAsync("testGUID3");
+            Ticket ticket = new Ticket()
+            {
+                Id = 1,
+                Title = "test attachment",
+                Description = "test attachment",
+                Developer = developer,
+                DeveloperId = developer.Id,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Parse("June 12 2022 12:00"),
+                Type = TicketType.AccountIssue,
+                Priority = TicketPriority.Medium,
+                Status = TicketStatus.OnHold,
+            };
+
+            TicketAttachment ticketAttachment = new TicketAttachment()
+            {
+                CreatedDate = DateTime.Now,
+                SubmitterId = developer.Id,
+                Submitter = developer,
+                TicketId = ticket.Id,
+                Ticket = ticket,
+                FileName = "test.txt",
+                FileInBytes = File.ReadAllBytes($"{Directory.GetCurrentDirectory()}/BugTracker.dll")
+            };
+
+            List<TicketAttachment> allTicketAttachments = new List<TicketAttachment>();
+            ticketAttachmentRepoMock.Setup(repo => repo.Get(It.IsAny<Func<TicketAttachment, bool>>())).Returns(ticketAttachment);
+            ticketAttachmentRepoMock.Setup(repo => repo.Add(It.IsAny<TicketAttachment>())).Callback<TicketAttachment>((ticketAttach) => allTicketAttachments.Add(ticketAttach));
+
+            //act
+            commentAndAttachmentBL.AddAttachmentToTicket(ticketAttachment.FileName, $"{Directory.GetCurrentDirectory()}/BugTracker.dll", ticket, developer);
+
+            //assert
+            Assert.AreEqual(1, allTicketAttachments.Count);
+        }
+
+        [TestMethod]
+        public async Task EditCommentWorks()
+        {
+            //arrange
+            TicketComment actualComment = new TicketComment()
+            {
+                Id = 1,
+                TicketId = 1,
+                Comment = "test comment"
+            };
+
+            TicketComment expectedComment = new TicketComment()
+            {
+                Id = 1,
+                TicketId = 1,
+                Comment = "Edited comment"
+            };
+
+            ticketCommentRepoMock.Setup(repo => repo.Get(It.Is<int>(i => i == 1))).Returns(actualComment);
+
+            //act
+            commentAndAttachmentBL.EditCommentOnTicket(actualComment.Id, "Edited comment");
+
+            //assert
+            Assert.AreNotEqual(expectedComment, actualComment);
+        }
     }
 }
