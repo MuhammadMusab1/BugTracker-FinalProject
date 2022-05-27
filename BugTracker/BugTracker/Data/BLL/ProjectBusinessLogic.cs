@@ -31,22 +31,6 @@ namespace BugTracker.Data.BLL
             RoleManager = roleManager;
         }
 
-        public List<Project> GetAllProjects()
-        {
-            return ProjectRepo.GetAll().ToList();
-        }
-
-        public List<Project> GetAllProjectsFromProjectManager(string pmId)
-        {
-            return ProjectRepo.GetList(p => p.ProjectManagerId == pmId).ToList();
-        }
-
-        public async Task<List<Project>> GetAllProjectsFromDeveloper(string developerId)
-        {
-            ApplicationUser dev = await UserManager.FindByIdAsync(developerId);
-            return ProjectRepo.GetList(p => p.Developers.First(d => d.Id == developerId) == dev).ToList();
-        }
-
         [Authorize(Roles = "Admin, Project Manager")]
         public async Task<string> AddDeveloperToProject(string devId, int projId)
         {
@@ -74,16 +58,6 @@ namespace BugTracker.Data.BLL
             project.ProjectManagerId = pmId;
             user.ProjectsOwned = ProjectRepo.GetList(p => p.ProjectManagerId == pmId);
             user.ProjectsOwned.Add(project);
-            ProjectRepo.Save();
-        }
-
-        public void AddTicketToProject(int ticketId, int projId)
-        {
-            Ticket ticket = TicketRepo.Get(ticketId);
-            Project project = ProjectRepo.Get(projId);
-
-            project.Tickets.Add(ticket);
-            ticket.Project = project;
             ProjectRepo.Save();
         }
     }
