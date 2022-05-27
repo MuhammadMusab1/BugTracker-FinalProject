@@ -189,6 +189,23 @@ namespace BugTracker.Controllers
                 }
                 ViewBag.developerList = new SelectList(ticket.Project.Developers, "Id", "UserName");
                 ViewBag.ticketId = ticketId;
+                ApplicationUser currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+                if (await _userManager.IsInRoleAsync(currentUser, "Admin"))
+                {
+                    ViewBag.currentUserIsAdmin = true;
+                }
+                else
+                {
+                    ViewBag.currentUserIsAdmin = false;
+                }
+                if (await _userManager.IsInRoleAsync(currentUser, "Project Manager"))
+                {
+                    ViewBag.currentUserIsProjectManager = true;
+                }
+                else
+                {
+                    ViewBag.currentUserIsProjectManager = false;
+                }
                 return View(ticket);
             }
             else
@@ -218,11 +235,6 @@ namespace BugTracker.Controllers
             {
                 return BadRequest("ticketId or developerId is missing at AssignDeveloperToTicket post method");
             }
-        }
-
-        public async Task<IActionResult> DeleteTicket(int ticketId)
-        {
-            return View();
         }
         [Authorize(Roles = "Admin")]
         [HttpGet]

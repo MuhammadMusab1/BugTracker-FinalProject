@@ -30,7 +30,6 @@ namespace BugTracker.Data.BLL
             UserManager = userManager;
             RoleManager = roleManager;
         }
-
         [Authorize(Roles = "Admin, Project Manager")]
         public async Task<string> AddDeveloperToProject(string devId, int projId)
         {
