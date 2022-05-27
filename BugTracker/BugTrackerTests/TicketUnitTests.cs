@@ -26,6 +26,7 @@ namespace BugTrackerTests
         public Mock<RoleManager<IdentityRole>> roleManagerMock { get; set; }
         public TicketBusinessLogic ticketBL { get; set; }
         public CommentAndAttachmentBusinessLogic commentAndAttachmentBL { get; set; }
+        public ProjectBusinessLogic projectBL { get; set; }
 
         [TestInitialize]
         public void Initialize()
@@ -82,6 +83,7 @@ namespace BugTrackerTests
                 ProjectManager = testprojectManager,
                 ProjectManagerId = testprojectManager.Id,
                 Tickets = new HashSet<Ticket>(),
+                Developers = new HashSet<ApplicationUser>(),
             };
             Ticket testTicket = new Ticket
             {
@@ -120,6 +122,7 @@ namespace BugTrackerTests
             //Instantiate TicketBL
             ticketBL = new TicketBusinessLogic(projectRepoMock.Object, ticketRepoMock.Object, ticketHistoryRepoMock.Object, ticketLogItemRepoMock.Object, ticketNotificationRepoMock.Object, userManagerMock.Object, roleManagerMock.Object);
             commentAndAttachmentBL = new CommentAndAttachmentBusinessLogic(projectRepoMock.Object, ticketRepoMock.Object, ticketAttachmentRepoMock.Object, ticketCommentRepoMock.Object, userManagerMock.Object);
+            projectBL = new ProjectBusinessLogic(projectRepoMock.Object, ticketRepoMock.Object, userManagerMock.Object, roleManagerMock.Object);
         }
         [TestMethod]
         public async Task UpdateMethodUpdatesTheTicketAndCreateTicketHistoryAndTicketLogForIt()
@@ -309,6 +312,59 @@ namespace BugTrackerTests
 
             //assert
             Assert.AreNotEqual(expectedComment, actualComment);
+        }
+
+        [TestMethod]
+        public async Task AddDevToProjectBLLMethodWorks()
+        {
+            
+            //Arrange
+            ApplicationUser developer = await userManagerMock.Object.FindByIdAsync("testGUID3");
+            Project actualProject = new Project()
+            {
+                Id = 2,
+                Name = "SeedData Project Testing",
+                Description = "A Test Project",
+                Developers = new List<ApplicationUser>(),
+            };
+                   
+          
+            projectRepoMock.Setup(repo => repo.Get(It.Is<int>(i => i == 2))).Returns(actualProject);
+
+
+            //Act
+            await projectBL.AddDeveloperToProject(developer.Id, actualProject.Id);
+
+            //Assert
+            Assert.AreEqual(1, actualProject.Developers.Count);
+            Assert.IsNotNull(developer.ProjectAssigned);
+            Assert.IsNotNull(developer.ProjectAssignedId);
+        }
+
+        [TestMethod]
+
+        public async Task AddPMtoProjectBllMethod()
+        {
+            ApplicationUser developer = await userManagerMock.Object.FindByIdAsync("testGUID1");
+            Project project = new Project()
+            {
+                Id = 2,
+                Name = "SeedData Project Testing",
+                Description = "A Test Project",
+                Tickets = new HashSet<Ticket>(),
+                Developers = new HashSet<ApplicationUser>(),
+
+            };
+            projectRepoMock.Setup(repo => repo.Get(It.Is<int>(i => i == 2))).Returns(project);
+            projectRepoMock.Setup(repo => repo.GetList(It.IsAny<Func<Project, bool>>())).Returns(new List<Project>());
+
+            //Act
+            projectBL.AssignProjToPM(project.Id, developer.Id);
+
+            //Assert
+            Assert.IsNotNull(project.ProjectManager);
+            Assert.IsNotNull(project.ProjectManagerId);
+            Assert.AreEqual(1, developer.ProjectsOwned.Count);
         }
     }
 }
