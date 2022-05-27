@@ -59,15 +59,5 @@ namespace BugTracker.Data.BLL
             user.ProjectsOwned.Add(project);
             ProjectRepo.Save();
         }
-
-        public void AddTicketToProject(int ticketId, int projId)
-        {
-            Ticket ticket = TicketRepo.Get(ticketId);
-            Project project = ProjectRepo.Get(projId);
-
-            project.Tickets.Add(ticket);
-            ticket.Project = project;
-            ProjectRepo.Save();
-        }
     }
 }
