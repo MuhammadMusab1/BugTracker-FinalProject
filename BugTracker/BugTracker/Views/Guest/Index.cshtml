@@ -1,0 +1,19 @@
+﻿@using BugTracker.Models
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authentication;
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@model ApplicationUser
+@{
+    var signInManager = SignInManager;
+    var result = await signInManager.PasswordSignInAsync(Model.Email, "Password!1", isPersistent: false, lockoutOnFailure: false);
+    string re = result.Succeeded ? "true" : "false";
+}
+
+ <form asp-controller="Guest" asp-action="Index" method="post" id="guestId">
+    <input type="hidden" name="re" value="@re"/>
+</form>
+
+<script type="text/javascript">document.forms["guestId"].submit();
+</script>
+

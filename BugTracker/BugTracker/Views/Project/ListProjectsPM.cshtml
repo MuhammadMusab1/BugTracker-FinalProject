@@ -1,0 +1,48 @@
+﻿@model IEnumerable<BugTracker.Models.Project>
+
+@{
+    ViewData["Title"] = "ListProjectsPM";
+}
+
+<h1>List of Project Manager's Projects</h1>
+
+<p>
+    <a asp-action="CreateProject">Create New Project</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProjectManager)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProjectManager.UserName)
+            </td>
+            <td>
+                <a asp-action="UpdateProject" asp-route-projId="@item.Id">Edit</a> |
+                <a asp-controller="Project" asp-action="ProjectDetails" asp-route-projectId="@item.Id">Details</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+ <a class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;" asp-controller="Project" asp-action="ProjManagerDashboard">Back To Project Manager Dashboard</a>

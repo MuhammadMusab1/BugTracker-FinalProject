@@ -1,0 +1,44 @@
+﻿@model IEnumerable<BugTracker.Models.TicketNotification>
+
+@{
+    ViewData["Title"] = "TicketNotifications";
+}
+
+<h1>Notifications</h1>
+<a class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;" asp-action="DeveloperDashboard" asp-controller="Developer">Back To Developer's Dashboard</a>
+@if(Model.Any())
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Ticket)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Message)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ticket.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Message)
+            </td>
+            <td>
+                <a class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;background-color: red;border-color: red" asp-action="DeleteNotification" asp-controller="Developer" asp-route-ticketNotificationId="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+    </table>
+}
+else
+{
+    <div>No Notifications anymore!!</div>
+}
+

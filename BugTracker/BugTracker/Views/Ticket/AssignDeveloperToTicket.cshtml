@@ -1,0 +1,29 @@
+﻿@model Ticket
+<h2>Assign Developer to Ticket</h2>
+
+<form asp-action="AssignDeveloperToTicket" method="post">
+    <select asp-items="@ViewBag.developerList" name="developerId">
+
+    </select>
+    <input type="hidden" name="ticketId" value="@ViewBag.ticketId"/>
+    <input type="submit" value="Assign" class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;"/>
+</form>
+
+<div style="margin: 2rem 0rem 2rem 0rem;">
+     @ViewBag.NoDevelopersAssignedToProjectMsg
+</div>
+
+<div>
+    <a class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;" asp-controller="Ticket" asp-action="ProjectTickets" asp-route-projectId="@Model.ProjectId">Back to Project's Tickets</a>
+    @if(ViewBag.currentUserIsProjectManager)
+    {
+      <a class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;" asp-controller="Project" asp-action="ListProjectPM">Back to Project Manager's Projects</a>
+      <a class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;" asp-action="ProjManagerDashboard" asp-controller="Project">Project Manager Dashboard</a>
+
+    }
+    @if(ViewBag.currentUserIsAdmin)
+    {
+      <a class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;" asp-action="AdminDashboard" asp-controller="Admin">Admin Dashboard</a>
+        
+    }
+</div>

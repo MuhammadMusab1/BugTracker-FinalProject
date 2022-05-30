@@ -1,0 +1,103 @@
+﻿@using X.PagedList.Mvc.Core;
+@model X.PagedList.IPagedList<BugTracker.Models.Ticket>
+
+@{
+    ViewData["Title"] = "AllTicketSort";
+}
+
+<h1>All Tickets</h1>
+<form method="get" asp-action="AllTicketSort">
+    <select asp-items="@ViewBag.sortList" name="filterId">
+
+    </select>
+   <input type="submit" value="Sort" class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;"/>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+               Created Date
+            </th>
+            <th>
+                Priority
+            </th>
+            <th>
+                Status
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                Project
+            </th>
+            <th>
+                Developer
+            </th>
+            <th>
+                Submitter
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Type)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Project.Name)
+            </td>
+            <td>
+                 @if(item.DeveloperId == null)
+                    {
+                        <div style="font-weight: bold;color: red;">Unassign</div>
+                    }
+                    else
+                    {
+                        <div style="font-weight: bold;color: purple;"> @item.Developer.UserName</div>
+                    }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Submitter.UserName)
+            </td>
+            <td>
+                <a asp-action="UpdateTicket" asp-route-ticketId="@item.Id">Edit</a> |
+                <a asp-action="TicketDetails" asp-route-ticketId="@item.Id">Details</a> |
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<a class="btn btn-primary" style="margin: 2rem 0rem 2rem 0rem;" asp-action="AdminDashboard" asp-controller="Admin">My Admin Dashboard</a>
+@{
+    string actionName = ViewBag.actionName;
+}
+<nav aria-label="Ticket navigation">
+    @Html.PagedListPager(Model, page => Url.Action(actionName, new {page = page}), 
+    
+    new X.PagedList.Web.Common.PagedListRenderOptions 
+    {
+        DisplayItemSliceAndTotal = false,
+        ContainerDivClasses = new[] {"navigation"},
+        LiElementClasses = new[] {"page-item"},
+        PageClasses = new[] {"page-link"},
+    })
+</nav>
